@@ -46,7 +46,7 @@ def feature_selection_svm(X, y, num_features_to_select=None, **kwargs):
     importances = feature_selector.estimator_.coef_.reshape(-1)
     selected_features = importances.argsort()[::-1][:num_features_to_select]
 
-    return selected_features
+    return selected_features, importances
 
 def feature_selection_random_forest(X, y, num_features_to_select=None, **kwargs):
 

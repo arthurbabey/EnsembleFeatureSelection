@@ -1,5 +1,5 @@
 from itertools import combinations
-from ranky import kemeny_young, borda ;
+from ranky import kemeny_young, borda
 
 
 # here major difference is that set based method like union works with subsets of features

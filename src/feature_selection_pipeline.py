@@ -52,9 +52,9 @@ class FeatureSelectionPipeline:
         for fs_method in self.fs_methods:
             method_name = fs_method.__name__.replace("feature_selection_", "")
             X_train, y_train = self._get_X_y(train_data)
-            threshold = self.threshold if self.threshold is not None else self.data.shape[1]//10
+            # threshold = self.threshold if self.threshold is not None else self.data.shape[1]//10
             selected_feature_scores, selected_features_indices = fs_method(
-                X=X_train, y=y_train, threshold=threshold
+                X=X_train, y=y_train, num_features_to_select=None
             )
             self.FS_subsets[(idx, method_name)] = self._compute_features(
                 selected_features_indices, selected_feature_scores

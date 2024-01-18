@@ -21,7 +21,7 @@ class FeatureSelectionPipeline:
         - fs_methods (list): List of feature selection methods to be applied.
         - merging_strategy (str): Strategy for merging selected features ('union' or 'intersection').
         - classifier: (str) Ref to the classifier used to compute performance metrics, should be either 'RF',
-            'naiveBaye' or 'bagging'.
+            'naiveBayes' or 'bagging'.
         - num_repeats (int, optional): Number of repetitions for feature selection. Defaults to 10.
         - threshold (int, optional): number of features to used for set based merging strategy. Defaults to None,
             pipeline will use one tenth of features.
@@ -358,11 +358,9 @@ class FeatureSelectionPipeline:
     def compute_performance(self, features, classifier, train_data, test_data):
         sliced_train_data = train_data[features + ["target"]]
         sliced_test_data = test_data[features + ["target"]]
-       # print(sliced_train_data)
-       # print('*****')
+
         X_train, y_train = self._get_X_y(data=sliced_train_data)
         X_test, y_test = self._get_X_y(data=sliced_test_data)
-       # print(X_train)
         return compute_performance_metrics(classifier, X_train, y_train, X_test, y_test)
 
     @staticmethod

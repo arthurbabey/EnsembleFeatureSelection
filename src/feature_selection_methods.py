@@ -33,6 +33,10 @@ def feature_selection_chi2(X, y, num_features_to_select=None):
     selected_features_indices = np.argsort(feature_scores)[::-1][:num_features_to_select]
     return feature_scores, selected_features_indices
 
+"""
+Error with this function, selected_features_indices are not the good feature list, need to understand
+how to FS with SVM.
+
 
 def feature_selection_svm(X, y, num_features_to_select=None, **kwargs):
 
@@ -40,13 +44,15 @@ def feature_selection_svm(X, y, num_features_to_select=None, **kwargs):
         num_features_to_select = int(0.1 * X.shape[1])
 
     # Initialize the SVM classifier
-    svm = SVC(**kwargs)
+    svm = SVC(kernel='linear', **kwargs)
     feature_selector = SelectFromModel(svm)
     feature_selector.fit(X, y)
     importances = feature_selector.estimator_.coef_.reshape(-1)
-    selected_features = importances.argsort()[::-1][:num_features_to_select]
+    selected_features_indices = importances.argsort()[::-1][:num_features_to_select]
+    print(selected_features_indices)
 
-    return selected_features, importances
+    return None, selected_features_indices
+"""
 
 def feature_selection_random_forest(X, y, num_features_to_select=None, **kwargs):
 
@@ -62,6 +68,8 @@ def feature_selection_random_forest(X, y, num_features_to_select=None, **kwargs)
 
     feature_scores = feature_selector.estimator_.feature_importances_
     selected_features_indices = feature_scores.argsort()[::-1][:num_features_to_select]
+    print(selected_features_indices)
+
     return feature_scores, selected_features_indices
 
 
@@ -79,6 +87,7 @@ def feature_selection_xgboost(X, y, num_features_to_select=None, **kwargs):
 
     feature_scores = feature_selector.estimator_.feature_importances_
     selected_features_indices = feature_scores.argsort()[::-1][:num_features_to_select]
+    print(selected_features_indices)
     return feature_scores, selected_features_indices
 
 def feature_selection_rfe_rf(X, y, num_features_to_select=None, **kwargs):
@@ -91,6 +100,7 @@ def feature_selection_rfe_rf(X, y, num_features_to_select=None, **kwargs):
     rfe.fit(X, y)
 
     selected_features_indices = rfe.support_
+    # print(selected_features_indices)
 
     return None, selected_features_indices
 

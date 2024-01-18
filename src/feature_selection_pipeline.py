@@ -304,9 +304,16 @@ class FeatureSelectionPipeline:
 
         for idx, name in enumerate(feature_names):
             if idx in selected_features_indices:
-                feature = Feature(name, score=feature_scores[idx], selected=True)
+                if feature_scores is None:
+                    feature = Feature(name, score=None, selected=True)
+                else:
+                    feature = Feature(name, score=feature_scores[idx], selected=True)
             else:
-                feature = Feature(name, score=feature_scores[idx], selected=False)
+                if feature_scores is None:
+                    feature = Feature(name, score=None, selected=False)
+                else:
+                    feature = Feature(name, score=feature_scores[idx], selected=False)
+
             all_features.append(feature)
 
         return all_features

@@ -92,7 +92,7 @@ def feature_selection_rfe_rf(X, y, num_features_to_select=None, **kwargs):
 
     selected_features_indices = rfe.support_
 
-    return selected_features_indices
+    return None, selected_features_indices
 
 # WHAT TO DO WITH FUNCTION THAT DOES NOT DIRECTLY PROVIDE FEATURE IMPORTANCE
 # WHY DID I RETURN IMPORTANCES ??

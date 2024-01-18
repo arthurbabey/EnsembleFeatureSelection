@@ -31,6 +31,7 @@ def feature_selection_chi2(X, y, num_features_to_select=None):
 
     feature_scores = chi2_selector.scores_  # Get scores for each feature
     selected_features_indices = np.argsort(feature_scores)[::-1][:num_features_to_select]
+
     return feature_scores, selected_features_indices
 
 """

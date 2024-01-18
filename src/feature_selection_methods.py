@@ -68,7 +68,6 @@ def feature_selection_random_forest(X, y, num_features_to_select=None, **kwargs)
 
     feature_scores = feature_selector.estimator_.feature_importances_
     selected_features_indices = feature_scores.argsort()[::-1][:num_features_to_select]
-    print(selected_features_indices)
 
     return feature_scores, selected_features_indices
 
@@ -87,7 +86,6 @@ def feature_selection_xgboost(X, y, num_features_to_select=None, **kwargs):
 
     feature_scores = feature_selector.estimator_.feature_importances_
     selected_features_indices = feature_scores.argsort()[::-1][:num_features_to_select]
-    print(selected_features_indices)
     return feature_scores, selected_features_indices
 
 def feature_selection_rfe_rf(X, y, num_features_to_select=None, **kwargs):
@@ -100,7 +98,6 @@ def feature_selection_rfe_rf(X, y, num_features_to_select=None, **kwargs):
     rfe.fit(X, y)
 
     selected_features_indices = rfe.support_
-    # print(selected_features_indices)
 
     return None, selected_features_indices
 

@@ -127,7 +127,7 @@ class FeatureSelectionPipeline:
         """
         pareto = ParetoAnalysis(groups, names)
         pareto_results = pareto.get_results()
-        best_group_name = pareto_results.iloc[0][0]
+        best_group_name = pareto_results.iloc[0].iloc[0]
         return best_group_name
 
     def iterate_pipeline(self):

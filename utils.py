@@ -1,14 +1,16 @@
 import pandas as pd
+import numpy as np
 import yaml
-import importlib
 import src.feature_selection_methods as feature_selection_methods
-from sklearn.preprocessing import LabelEncoder
+import src.merging_strategy_methods as merging_strategy_methods
+
+from sklearn.preprocessing import LabelEncoder, MinMaxScaler
 
 def read_config(config_file):
     with open(config_file, "r") as file:
         config = yaml.safe_load(file)
 
-    # Dynamically import feature selection functions
+    # get function from strings for fs_methods and merging_strategy_methods
     fs_methods = []
     for method_name in config['fs_methods']['value']:
         # Assuming feature selection functions are in a module named 'feature_selection'
@@ -16,10 +18,10 @@ def read_config(config_file):
         fs_methods.append(fs_method)
 
     config['fs_methods']['value'] = fs_methods
-    config_with_values = {key: value['value'] for key, value in config.items()}  # Extract values
+    strategy_name = config['merging_strategy']['value']
+    config['merging_strategy']['value'] = getattr(merging_strategy_methods, strategy_name)
     validate_config(config)
-    return config_with_values
-
+    return config
 
 def validate_config(config):
     # Validate classifier
@@ -32,13 +34,16 @@ def validate_config(config):
     for method in config['fs_methods']['value']:
         if not callable(method):
             raise ValueError("Feature selection method specified in the configuration is not callable.")
-        print(method.__name__)
         if method.__name__ not in config['fs_methods']['valid_values']:
             raise ValueError("Invalid feature selection method specified in the configuration.")
 
     # Validate merging_strategy
-    if config['merging_strategy']['value'] not in config['merging_strategy']['valid_values']:
-        raise ValueError("Invalid merging strategy specified in the configuration.")
+    if not callable(config['merging_strategy']['value']):
+        raise ValueError("Merging strategy specified is not callable.")
+    if not isinstance(config['merging_strategy']['value'].__name__, str):
+        raise ValueError("A single string should be specified in the configuration file.")
+    if config['merging_strategy']['value'].__name__ not in config['merging_strategy']['valid_values']:
+        raise ValueError("Invalid merging strategy name specified in the configuration.")
 
     # Validate num_repeats
     if 'num_repeats' in config:

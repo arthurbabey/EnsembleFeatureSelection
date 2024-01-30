@@ -10,7 +10,6 @@ class ParetoAnalysis:
         self.group_names = group_names
         self.results = [[0] * 4 for _ in range(self.num_groups)]
 
-
     def is_dominated(self, group_index, metric_index):
         group = self.data[group_index]
         metric = group[metric_index]
@@ -24,6 +23,7 @@ class ParetoAnalysis:
     def compute_dominance(self):
         for group_index in range(self.num_groups):
             for metric_index in range(self.num_metrics):
+                print(group_index)
                 self.results[group_index][0] = self.group_names[group_index]
                 if self.is_dominated(group_index, metric_index):
                     self.results[group_index][1] += 1

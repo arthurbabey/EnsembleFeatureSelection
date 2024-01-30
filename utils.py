@@ -1,12 +1,24 @@
 import pandas as pd
 import yaml
-
+import importlib
+import src.feature_selection_methods as feature_selection_methods
+from sklearn.preprocessing import LabelEncoder
 
 def read_config(config_file):
     with open(config_file, "r") as file:
         config = yaml.safe_load(file)
-    validate_config(config)  # Validate the original config dictionary
-    return config
+
+    # Dynamically import feature selection functions
+    fs_methods = []
+    for method_name in config['fs_methods']['value']:
+        # Assuming feature selection functions are in a module named 'feature_selection'
+        fs_method = getattr(feature_selection_methods, method_name)
+        fs_methods.append(fs_method)
+
+    config['fs_methods']['value'] = fs_methods
+    config_with_values = {key: value['value'] for key, value in config.items()}  # Extract values
+    validate_config(config)
+    return config_with_values
 
 
 def validate_config(config):
@@ -18,7 +30,10 @@ def validate_config(config):
     if not isinstance(config['fs_methods']['value'], list) or len(config['fs_methods']['value']) < 2:
         raise ValueError("At least two feature selection method must be specified in the configuration.")
     for method in config['fs_methods']['value']:
-        if method not in config['fs_methods']['valid_values']:
+        if not callable(method):
+            raise ValueError("Feature selection method specified in the configuration is not callable.")
+        print(method.__name__)
+        if method.__name__ not in config['fs_methods']['valid_values']:
             raise ValueError("Invalid feature selection method specified in the configuration.")
 
     # Validate merging_strategy
@@ -33,9 +48,9 @@ def validate_config(config):
 
 
 def preprocess_data(data_file, metadata_file):
-    data_path = '/home/arthur.babey/arthurbabey/Data/'
-    data_df = pd.read_csv(data_path + data_file)
-    meta_df = pd.read_csv(data_path + metadata_file)
+    data_path = '/mnt/arthurbabey/Data/'
+    data_df = pd.read_csv(data_file)
+    meta_df = pd.read_csv(metadata_file)
     merged_df = pd.merge(data_df, meta_df, on='SAMPLE_ID')
     merged_df.rename(columns={'TARGET_VAR_BIN': 'target'}, inplace=True)
 

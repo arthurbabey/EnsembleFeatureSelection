@@ -24,10 +24,13 @@ num_repeats:  # The number of repeats for the pipeline (an integer between 1 and
   max_value: 10
 
 data_path:  # The path to the data
-  value: "/home/arthur.babey/arthurbabey/Data/"
+  value: "/mnt/arthurbabey/Data/"
   description: "The path to the data folder."
 
 result_path:  # The path to save the results
   value: "/home/arthur.babey/data-local/project/lonza/EnsembleFeatureSelection/results"
   description: "The path to save the results."
 
+experiment_name:  # filename to save the result
+  value: "test.txt"
+  description: "The file name to save the results."

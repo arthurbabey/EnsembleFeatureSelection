@@ -1,3 +1,4 @@
+import pandas as pd
 import yaml
 
 def read_config(config_file):
@@ -32,6 +33,23 @@ def validate_config(config):
         if not isinstance(num_repeats, int) or num_repeats < 1 or num_repeats > 10:
             raise ValueError("Invalid value for num_repeats. It should be an integer between 1 and 10.")
 
+def preprocess_data(data_file, metadata_file):
+    data_path = '/home/arthur.babey/arthurbabey/Data/'
+    data_df = pd.read_csv(data_path + data_file)
+    meta_df = pd.read_csv(data_path + metadata_file)
+    merged_df = pd.merge(data_df, meta_df, on='SAMPLE_ID')
+    merged_df.rename(columns={'TARGET_VAR_BIN': 'target'}, inplace=True)
+
+    # drop the continous target to use only categorical one
+    if 'TARGET_VAR_NUM' in merged_df.columns:
+        merged_df.drop(columns=['TARGET_VAR_NUM'], inplace=True)
+
+    # LabelEncoding for target and other categorical variable
+    label_encoder = LabelEncoder()
+    for col in merged_df.select_dtypes(include=['object']):
+        merged_df[col] = label_encoder.fit_transform(merged_df[col])
+
+    return merged_df
 
 def create_toy_dataset(num_samples=1000, num_features=100, random_seed=42):
     np.random.seed(random_seed)  # Set the random seed for NumPy

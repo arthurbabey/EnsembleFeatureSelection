@@ -11,6 +11,7 @@ os.sched_setaffinity(0, range(cores_to_use))
 
 if __name__ == "__main__":
 
+    # parse config file
     config_file = 'config.yaml'
     params = read_config(config_file)
     classifier = params['classifier']['value']
@@ -21,30 +22,27 @@ if __name__ == "__main__":
     result_path = params['result_path']['value']
     experiment_name = params['experiment_name']['value']
 
-    dataset = preprocess_data(data_path+'EXP1_TRANSCRIPTOMICS.csv', data_path+'EXP1_METADATA.csv')
-    pipeline = FeatureSelectionPipeline(dataset, fs_methods, merging_strategy, classifier, num_repeats)
-    best_features, best_repeat, best_group_name = pipeline.iterate_pipeline()
-
-    # Create a folder for the experiment
+    # create results folders and save config
     experiment_folder = os.path.join(result_path, experiment_name)
     if not os.path.exists(experiment_folder):
         os.makedirs(experiment_folder)
+    shutil.copy(config_file, os.path.join(experiment_folder, "config.yaml"))
 
-    # Write the results to a text file
+    # Run pipeline
+    dataset = preprocess_data(data_path+'EXP1_PROTEOMICS.csv', data_path+'EXP1_METADATA.csv')
+    pipeline = FeatureSelectionPipeline(dataset, fs_methods, merging_strategy, classifier, num_repeats)
+    best_features, best_repeat, best_group_name = pipeline.iterate_pipeline()
+
+    # save results
     result_file_path = os.path.join(experiment_folder, "results.txt")
     with open(result_file_path, "w") as file:
         file.write(f"The best features are {best_features}\n")
         file.write(f"Best repeat value: {best_repeat}\n")
         file.write(f"Best group name: {best_group_name}\n")
-
-    # Save results as Python objects
     result_pickle_path = os.path.join(experiment_folder, "results.pkl")
     with open(result_pickle_path, "wb") as file:
         pickle.dump(best_features, file)
         pickle.dump(best_repeat, file)
         pickle.dump(best_group_name, file)
-
-    # Copy the config.yaml file to the experiment folder
-    shutil.copy(config_file, os.path.join(experiment_folder, "config.yaml"))
 
     print(f"Results written to {experiment_folder}")

@@ -3,12 +3,12 @@
 # Specify parameters for the pipeline below in the value line:
 
 classifier:
-  value: "RF"
+  value: "bagging"
   description: "The type of classifier to use."
-  valid_values: ["RF", "naivesbayes", "bagging"]
+  valid_values: ["RF", "naiveBayes", "bagging"]
 
 fs_methods:
-  value: ["feature_selection_infogain", "feature_selection_chi2", "feature_selection_random_forest"]
+  value: ["feature_selection_infogain", "feature_selection_chi2", "feature_selection_xgboost"]
   description: "List of feature selection methods to use. You can choose one or more methods."
   valid_values: ["feature_selection_infogain", "feature_selection_chi2", "feature_selection_random_forest", "feature_selection_xgboost", "feature_selection_rfe_rf"]
 
@@ -18,7 +18,7 @@ merging_strategy:
   valid_values: ["merging_strategy_union_of_pairwise_intersections", "merging_strategy_kemeny_young"]
 
 num_repeats:
-  value: 1
+  value: 10
   description: "The number of repeats for the pipeline."
   min_value: 1
   max_value: 10
@@ -32,5 +32,5 @@ result_path:
   description: "The path to save the results."
 
 experiment_name:
-  value: "test"
+  value: "EXP1_PROTEOMICS"
   description: "The file name to save the results."

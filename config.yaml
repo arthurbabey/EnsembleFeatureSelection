@@ -3,25 +3,31 @@
 # Specify parameters for the pipeline below:
 
 classifier:  # The type of classifier to use. Valid values are RF, naivesbayes, or bagging
+  value: "RF"
   description: "The type of classifier to use."
   valid_values: ["RF", "naivesbayes", "bagging"]
 
 fs_methods:  # List of feature selection methods to use
+  value: ["feature_selection_infogain", "feature_selection_chi2"]
   description: "List of feature selection methods to use. You can choose one or more methods."
   valid_values: ["feature_selection_infogain", "feature_selection_chi2", "feature_selection_random_forest", "feature_selection_xgboost", "feature_selection_rfe_rf"]
 
 merging_strategy:  # The strategy for merging feature selection results. Only one merging strategy can be chosen.
+  value: "merging_strategy_union_of_pairwise_intersections"
   description: "The strategy for merging feature selection results. Choose only one merging strategy."
   valid_values: ["merging_strategy_union_of_pairwise_intersections", "merging_strategy_kemeny_young"]
 
-num_repeats:  # The number of repeats for the pipeline (an integer between 1 and 10)
+num_repeats:  # The number of repeats for the pipeline (an integer between 1 and 10
+  value: 4
   description: "The number of repeats for the pipeline."
   min_value: 1
   max_value: 10
 
-data_path:  # The path to the dataset
-  description: "The path to the dataset."
+data_path:  # The path to the data
+  value: "/home/arthur.babey/arthurbabey/Data/"
+  description: "The path to the data folder."
 
 result_path:  # The path to save the results
+  value: "/home/arthur.babey/data-local/project/lonza/EnsembleFeatureSelection/results"
   description: "The path to save the results."
 

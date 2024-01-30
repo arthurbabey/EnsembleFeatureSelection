@@ -1,37 +1,36 @@
 import pandas as pd
 import yaml
 
+
 def read_config(config_file):
     with open(config_file, "r") as file:
         config = yaml.safe_load(file)
-    validate_config(config)
+    validate_config(config)  # Validate the original config dictionary
     return config
 
 
 def validate_config(config):
     # Validate classifier
-    valid_classifiers = ["RF", "naivesbayes", "bagging"]
-    if 'classifier' not in config or config['classifier'] not in valid_classifiers:
+    if config['classifier']['value'] not in config['classifier']['valid_values']:
         raise ValueError("Invalid classifier specified in the configuration.")
 
     # Validate fs_methods
-    valid_fs_methods = ["feature_selection_infogain", "feature_selection_chi2", "feature_selection_random_forest", "feature_selection_xgboost", "feature_selection_rfe_rf"]
-    if 'fs_methods' not in config or not isinstance(config['fs_methods'], list) or len(config['fs_methods']) < 1:
-        raise ValueError("At least one feature selection method must be specified in the configuration.")
-    for method in config['fs_methods']:
-        if method not in valid_fs_methods:
+    if not isinstance(config['fs_methods']['value'], list) or len(config['fs_methods']['value']) < 2:
+        raise ValueError("At least two feature selection method must be specified in the configuration.")
+    for method in config['fs_methods']['value']:
+        if method not in config['fs_methods']['valid_values']:
             raise ValueError("Invalid feature selection method specified in the configuration.")
 
     # Validate merging_strategy
-    valid_merging_strategies = ["merging_strategy_union_of_pairwise_intersections", "merging_strategy_kemeny_young"]
-    if 'merging_strategy' not in config or config['merging_strategy'] not in valid_merging_strategies:
+    if config['merging_strategy']['value'] not in config['merging_strategy']['valid_values']:
         raise ValueError("Invalid merging strategy specified in the configuration.")
 
     # Validate num_repeats
     if 'num_repeats' in config:
-        num_repeats = config['num_repeats']
+        num_repeats = config['num_repeats']['value']
         if not isinstance(num_repeats, int) or num_repeats < 1 or num_repeats > 10:
             raise ValueError("Invalid value for num_repeats. It should be an integer between 1 and 10.")
+
 
 def preprocess_data(data_file, metadata_file):
     data_path = '/home/arthur.babey/arthurbabey/Data/'

@@ -1,10 +1,7 @@
 from collections import defaultdict
-from itertools import combinations
-
 from sklearn.model_selection import train_test_split
 import pandas as pd
 
-from .feature_selection_methods import *
 from .merging_strategy_methods import *
 from .pareto import ParetoAnalysis
 from .metrics import *

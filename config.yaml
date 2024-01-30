@@ -1,0 +1,8 @@
+classifier: "RF"
+fs_methods:
+  - feature_selection_chi2
+  - feature_selection_infogain
+  - feature_selection_xgboost
+merging_strategy: "merging_strategy_union_of_pairwise_intersections"
+num_repeats: 5
+result_path: "./result/"

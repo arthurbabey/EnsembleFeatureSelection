@@ -1,5 +1,6 @@
 # data
 breast_cancer_data/
+results/
 
 # test notebook
 pipeline_test.ipynb
@@ -83,6 +84,7 @@ target/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+src/.ipynb_checkpoints
 
 # IPython
 profile_default/

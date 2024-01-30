@@ -1,4 +1,5 @@
 import pandas as pd
+from sklearn.preprocessing import LabelEncoder, MinMaxScaler
 import numpy as np
 from src.feature_selection_pipeline import FeatureSelectionPipeline
 
@@ -6,7 +7,6 @@ from src.feature_selection_methods import *
 from src.merging_strategy_methods import *
 
 import os
-from sklearn.preprocessing import LabelEncoder
 
 # Restrict the process to use only a specific number of CPU cores
 cores_to_use = 72  # Change this number to the desired core count
@@ -36,9 +36,6 @@ def GSE_dataset(csv_path):
     data = data.drop(columns=['target_raw'])
 
     return data
-
-import pandas as pd
-from sklearn.preprocessing import LabelEncoder, MinMaxScaler
 
 def leukemia_dataset(csv_path):
     data = pd.read_csv(csv_path)
@@ -79,12 +76,17 @@ if __name__ == "__main__":
     pipeline = FeatureSelectionPipeline(dataset, fs_methods, merging_strategy, classifier, num_repeats)
     print(pipeline)
     best_features, best_repeat, best_group_name = pipeline.iterate_pipeline()
+
     file_name = "GSE_result.txt"
+    result_folder = 'result'
+    if not os.path.exists(result_folder):
+        os.makedirs(result_folder)
+    file_path = os.path.join(result_folder, file_name)
 
     # Write the results to the file
-    with open(file_name, "w") as file:
+    with open(file_path, "w") as file:
         file.write(f"The best features are {best_features}\n")
         file.write(f"Best repeat value: {best_repeat}\n")
         file.write(f"Best group name: {best_group_name}\n")
 
-    print(f"Results written to {file_name}")
+    print(f"Results written to {file_path}")

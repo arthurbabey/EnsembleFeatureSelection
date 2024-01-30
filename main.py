@@ -1,6 +1,7 @@
 import os
+import pickle
+import shutil
 from src.feature_selection_pipeline import FeatureSelectionPipeline
-from src.feature_selection_methods import *
 from utils import *
 
 # Restrict the process to use only a specific number of CPU cores
@@ -24,14 +25,26 @@ if __name__ == "__main__":
     pipeline = FeatureSelectionPipeline(dataset, fs_methods, merging_strategy, classifier, num_repeats)
     best_features, best_repeat, best_group_name = pipeline.iterate_pipeline()
 
-    if not os.path.exists(result_path):
-        os.makedirs(result_path)
-    file_path = os.path.join(result_path, experiment_name)
+    # Create a folder for the experiment
+    experiment_folder = os.path.join(result_path, experiment_name)
+    if not os.path.exists(experiment_folder):
+        os.makedirs(experiment_folder)
 
-    # Write the results to the file
-    with open(file_path, "w") as file:
+    # Write the results to a text file
+    result_file_path = os.path.join(experiment_folder, "results.txt")
+    with open(result_file_path, "w") as file:
         file.write(f"The best features are {best_features}\n")
         file.write(f"Best repeat value: {best_repeat}\n")
         file.write(f"Best group name: {best_group_name}\n")
 
-    print(f"Results written to {file_path}")
+    # Save results as Python objects
+    result_pickle_path = os.path.join(experiment_folder, "results.pkl")
+    with open(result_pickle_path, "wb") as file:
+        pickle.dump(best_features, file)
+        pickle.dump(best_repeat, file)
+        pickle.dump(best_group_name, file)
+
+    # Copy the config.yaml file to the experiment folder
+    shutil.copy(config_file, os.path.join(experiment_folder, "config.yaml"))
+
+    print(f"Results written to {experiment_folder}")

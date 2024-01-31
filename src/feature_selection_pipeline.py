@@ -256,9 +256,15 @@ class FeatureSelectionPipeline:
         """
         Splits the data into training and testing sets.
         """
-        train_data, test_data = train_test_split(
-            self.data, test_size=test_size, stratify=self.data["target"]
-        )
+        if self.task == 'classification':
+            train_data, test_data = train_test_split(
+                self.data, test_size=test_size, stratify=self.data["target"]
+            )
+        elif self.task == 'regression':
+            train_data, test_data = train_test_split(
+                self.data, test_size=test_size
+            )
+            
         return train_data, test_data
 
     @staticmethod

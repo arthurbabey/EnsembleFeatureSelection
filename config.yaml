@@ -24,9 +24,14 @@ num_repeats:
   max_value: 10
 
 normalize:
-  value: False
+  value: True
   description: "Boolean to normalize continous variable."
+  valid_values: ["regression", "classification"]
 
+task:
+  value: "classification"
+  description: "ML task, either regression or classification"
+  
 data_path:
   value: "/mnt/arthurbabey/Data/"
   description: "The path to the data folder."
@@ -36,5 +41,5 @@ result_path:
   description: "The path to save the results."
 
 experiment_name:
-  value: "EXP1_TRANSCRIPTOMICS"
+  value: "EXP1_TRANSCRIPTOMICS_regression"
   description: "The file name to save the results."

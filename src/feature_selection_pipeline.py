@@ -9,7 +9,7 @@ from .feature import Feature
 
 
 class FeatureSelectionPipeline:
-    def __init__(self, data, fs_methods, merging_strategy, classifier, num_repeats=10, threshold=None):
+    def __init__(self, data, fs_methods, merging_strategy, classifier, num_repeats=10, threshold=None, task='classification'):
         """
         Initializes a FeatureSelectionPipeline object.
 
@@ -29,6 +29,7 @@ class FeatureSelectionPipeline:
         self.num_repeats = num_repeats
         self.classifier = classifier
         self.threshold = threshold
+        self.task = task
         self.subgroup_names = self._generate_subgroup_names()
         self.features = self._extract_features(data)
         self.FS_subsets = {}
@@ -51,7 +52,7 @@ class FeatureSelectionPipeline:
             X_train, y_train = self._get_X_y(train_data)
             # threshold = self.threshold if self.threshold is not None else self.data.shape[1]//10
             selected_feature_scores, selected_features_indices = fs_method(
-                X=X_train, y=y_train, num_features_to_select=None
+                X=X_train, y=y_train, task=self.task, num_features_to_select=None
             )
             self.FS_subsets[(idx, method_name)] = self._compute_features(
                 selected_features_indices, selected_feature_scores
@@ -255,9 +256,15 @@ class FeatureSelectionPipeline:
         """
         Splits the data into training and testing sets.
         """
-        train_data, test_data = train_test_split(
-            self.data, test_size=test_size, stratify=self.data["target"]
-        )
+        if self.task == 'classification':
+            train_data, test_data = train_test_split(
+                self.data, test_size=test_size, stratify=self.data["target"]
+            )
+        elif self.task == 'regression':
+            train_data, test_data = train_test_split(
+                self.data, test_size=test_size
+            )
+            
         return train_data, test_data
 
     @staticmethod
@@ -358,7 +365,7 @@ class FeatureSelectionPipeline:
 
         X_train, y_train = self._get_X_y(data=sliced_train_data)
         X_test, y_test = self._get_X_y(data=sliced_test_data)
-        return compute_performance_metrics(classifier, X_train, y_train, X_test, y_test)
+        return compute_performance_metrics(classifier, self.task, X_train, y_train, X_test, y_test)
 
     @staticmethod
     def compute_stability(features_list):

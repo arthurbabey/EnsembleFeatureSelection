@@ -1,15 +1,15 @@
 from sklearn.feature_selection import chi2, SelectFromModel, SelectKBest, mutual_info_classif
 from sklearn.svm import SVC
-from sklearn.ensemble import RandomForestClassifier
-from xgboost import XGBClassifier
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from xgboost import XGBClassifier, XGBRegressor
 from sklearn.feature_selection import RFE
 from sklearn.base import clone
 
 from sklearn.feature_selection import SelectKBest, mutual_info_classif, chi2
 import numpy as np
 
-def feature_selection_infogain(X, y, num_features_to_select=None):
 
+def feature_selection_infogain(X, y, task=None, num_features_to_select=None):
     if num_features_to_select is None:
         num_features_to_select = int(0.1 * X.shape[1])
 
@@ -20,9 +20,7 @@ def feature_selection_infogain(X, y, num_features_to_select=None):
     selected_features_indices = np.argsort(feature_scores)[::-1][:num_features_to_select]
     return feature_scores, selected_features_indices
 
-
-def feature_selection_chi2(X, y, num_features_to_select=None):
-
+def feature_selection_chi2(X, y, task=None, num_features_to_select=None):
     if num_features_to_select is None:
         num_features_to_select = int(0.1 * X.shape[1])
 
@@ -33,6 +31,7 @@ def feature_selection_chi2(X, y, num_features_to_select=None):
     selected_features_indices = np.argsort(feature_scores)[::-1][:num_features_to_select]
 
     return feature_scores, selected_features_indices
+
 
 """
 Error with this function, selected_features_indices are not the good feature list, need to understand
@@ -55,16 +54,21 @@ def feature_selection_svm(X, y, num_features_to_select=None, **kwargs):
     return None, selected_features_indices
 """
 
-def feature_selection_random_forest(X, y, num_features_to_select=None, **kwargs):
 
+def feature_selection_random_forest(X, y, task='classification', num_features_to_select=None, **kwargs):
     if num_features_to_select is None:
         num_features_to_select = int(0.1 * X.shape[1])
 
-    # Initialize the Random Forest classifier
-    rf = RandomForestClassifier(**kwargs)
+    # Initialize the Random Forest model based on task type
+    if task == 'classification':
+        model = RandomForestClassifier(**kwargs)
+    elif task == 'regression':
+        model = RandomForestRegressor(**kwargs)
+    else:
+        raise ValueError("Invalid task type. Please specify either 'classification' or 'regression'.")
 
     # Use Random Forest-based feature selection
-    feature_selector = SelectFromModel(rf)
+    feature_selector = SelectFromModel(model)
     feature_selector.fit(X, y)
 
     feature_scores = feature_selector.estimator_.feature_importances_
@@ -73,29 +77,42 @@ def feature_selection_random_forest(X, y, num_features_to_select=None, **kwargs)
     return feature_scores, selected_features_indices
 
 
-def feature_selection_xgboost(X, y, num_features_to_select=None, **kwargs):
 
+def feature_selection_xgboost(X, y, task='classification', num_features_to_select=None, **kwargs):
     if num_features_to_select is None:
         num_features_to_select = int(0.1 * X.shape[1])
 
-    # Initialize the XGBoost classifier
-    xgb = XGBClassifier(**kwargs)
+    # Initialize the XGBoost model based on task type
+    if task == 'classification':
+        model = XGBClassifier(**kwargs)
+    elif task == 'regression':
+        model = XGBRegressor(**kwargs)
+    else:
+        raise ValueError("Invalid task type. Please specify either 'classification' or 'regression'.")
 
     # Use XGBoost-based feature selection
-    feature_selector = SelectFromModel(xgb)
+    feature_selector = SelectFromModel(model)
     feature_selector.fit(X, y)
 
     feature_scores = feature_selector.estimator_.feature_importances_
     selected_features_indices = feature_scores.argsort()[::-1][:num_features_to_select]
+
     return feature_scores, selected_features_indices
 
-def feature_selection_rfe_rf(X, y, num_features_to_select=None, **kwargs):
 
+def feature_selection_rfe_rf(X, y, task='classification', num_features_to_select=None, **kwargs):
     if num_features_to_select is None:
         num_features_to_select = int(0.1 * X.shape[1])
 
-    rf = RandomForestClassifier(**kwargs)
-    rfe = RFE(rf, n_features_to_select=num_features_to_select)
+    # Initialize the Random Forest model based on task type
+    if task == 'classification':
+        model = RandomForestClassifier(**kwargs)
+    elif task == 'regression':
+        model = RandomForestRegressor(**kwargs)
+    else:
+        raise ValueError("Invalid task type. Please specify either 'classification' or 'regression'.")
+
+    rfe = RFE(model, n_features_to_select=num_features_to_select)
     rfe.fit(X, y)
 
     selected_features_indices = rfe.support_

@@ -5,21 +5,48 @@ from xgboost import XGBClassifier, XGBRegressor
 from sklearn.feature_selection import RFE
 from sklearn.base import clone
 
-from sklearn.feature_selection import SelectKBest, mutual_info_classif, chi2
+from sklearn.feature_selection import *
 import numpy as np
 
 
-def feature_selection_infogain(X, y, task=None, num_features_to_select=None):
+def feature_selection_f_statistic(X, y, task='classification', num_features_to_select=None):
     if num_features_to_select is None:
         num_features_to_select = int(0.1 * X.shape[1])
 
-    kbest_selector = SelectKBest(score_func=mutual_info_classif, k=num_features_to_select)
-    kbest_selector.fit(X, y)
+    # Choose the F-statistic function based on the task type
+    if task == 'classification':
+        f_stat_func = f_classif
+    elif task == 'regression':
+        f_stat_func = f_regression
 
-    feature_scores = kbest_selector.scores_  # Get scores for each feature
-    selected_features_indices = np.argsort(feature_scores)[::-1][:num_features_to_select]
+    selector = SelectKBest(score_func=f_stat_func, k=num_features_to_select)
+    selector.fit(X, y)
+    feature_scores = selector.scores_
+    selected_features_indices = feature_scores.argsort()[::-1][:num_features_to_select]
+
     return feature_scores, selected_features_indices
 
+
+
+def feature_selection_mutual_info(X, y, task='classification', num_features_to_select=None):
+    if num_features_to_select is None:
+        num_features_to_select = int(0.1 * X.shape[1])
+
+    if task == 'classification':
+        mutual_info_func = mutual_info_classif
+    elif task == 'regression':
+        mutual_info_func = mutual_info_regression
+    else:
+        raise ValueError("Invalid task type. Please specify either 'classification' or 'regression'.")
+
+    selector = SelectKBest(score_func=mutual_info_func, k=num_features_to_select)
+    selector.fit(X, y)
+    feature_scores = selector.scores_
+    selected_features_indices = feature_scores.argsort()[::-1][:num_features_to_select]
+
+    return feature_scores, selected_features_indices
+
+# might not be useful in this context
 def feature_selection_chi2(X, y, task=None, num_features_to_select=None):
     if num_features_to_select is None:
         num_features_to_select = int(0.1 * X.shape[1])
@@ -33,9 +60,9 @@ def feature_selection_chi2(X, y, task=None, num_features_to_select=None):
     return feature_scores, selected_features_indices
 
 
-"""
-Error with this function, selected_features_indices are not the good feature list, need to understand
-how to FS with SVM.
+
+#Error with this function, selected_features_indices are not the good feature list, need to understand
+#how to FS with SVM.
 
 
 def feature_selection_svm(X, y, num_features_to_select=None, **kwargs):
@@ -52,7 +79,7 @@ def feature_selection_svm(X, y, num_features_to_select=None, **kwargs):
     print(selected_features_indices)
 
     return None, selected_features_indices
-"""
+
 
 
 def feature_selection_random_forest(X, y, task='classification', num_features_to_select=None, **kwargs):

@@ -56,6 +56,12 @@ def preprocess_exp1(data_file, metadata_file, normalize, task='regression'):
     data_df = pd.read_csv(data_file, index_col=0)
     meta_df = pd.read_csv(metadata_file, index_col=0)
     merged_df = pd.merge(data_df, meta_df, on='SAMPLE_ID')
+    
+    # Drop rows containing NaN values
+    merged_df.dropna(inplace=True)
+    print("Number of samples after dropping NaN values:", len(merged_df))
+    print("Resulting shape of the DataFrame (samples, features):", merged_df.shape[0], merged_df.shape[1] - 1)
+
     if task == 'regression':
         merged_df.rename(columns={'TARGET_VAR_NUM': 'target'}, inplace=True)
         merged_df.drop(columns=['SAMPLE_ID', 'TARGET_VAR_BIN'], inplace=True, errors='ignore')

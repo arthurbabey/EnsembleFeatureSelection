@@ -24,7 +24,7 @@ num_repeats:
   max_value: 10
 
 normalize:
-  value: False
+  value: True
   description: "Boolean to normalize continous variable."
   valid_values: ["regression", "classification"]
 

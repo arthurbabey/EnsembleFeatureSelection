@@ -23,6 +23,10 @@ num_repeats:
   min_value: 1
   max_value: 10
 
+normalize:
+  value: False
+  description: "Boolean to normalize continous variable."
+
 data_path:
   value: "/mnt/arthurbabey/Data/"
   description: "The path to the data folder."
@@ -32,5 +36,5 @@ result_path:
   description: "The path to save the results."
 
 experiment_name:
-  value: "EXP1_PROTEOMICS"
+  value: "EXP1_TRANSCRIPTOMICS"
   description: "The file name to save the results."

@@ -18,6 +18,7 @@ if __name__ == "__main__":
     fs_methods = params['fs_methods']['value']
     merging_strategy = params['merging_strategy']['value']
     num_repeats = params.get('num_repeats', {'value': 1})['value']  # Default to 1 if not provided
+    normalize = params['normalize']['value']
     data_path = params['data_path']['value']
     result_path = params['result_path']['value']
     experiment_name = params['experiment_name']['value']
@@ -29,7 +30,7 @@ if __name__ == "__main__":
     shutil.copy(config_file, os.path.join(experiment_folder, "config.yaml"))
 
     # Run pipeline
-    dataset = preprocess_data(data_path+'EXP1_PROTEOMICS.csv', data_path+'EXP1_METADATA.csv')
+    dataset = preprocess_exp1(data_path+'EXP1_TRANSCRIPTOMICS.csv', data_path+'EXP1_METADATA.csv', normalize=normalize)
     pipeline = FeatureSelectionPipeline(dataset, fs_methods, merging_strategy, classifier, num_repeats)
     best_features, best_repeat, best_group_name = pipeline.iterate_pipeline()
 

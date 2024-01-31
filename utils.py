@@ -4,7 +4,7 @@ import yaml
 import src.feature_selection_methods as feature_selection_methods
 import src.merging_strategy_methods as merging_strategy_methods
 
-from sklearn.preprocessing import LabelEncoder, MinMaxScaler
+from sklearn.preprocessing import LabelEncoder, MinMaxScaler, StandardScaler
 
 def read_config(config_file):
     with open(config_file, "r") as file:
@@ -52,21 +52,25 @@ def validate_config(config):
             raise ValueError("Invalid value for num_repeats. It should be an integer between 1 and 10.")
 
 
-def preprocess_data(data_file, metadata_file):
-    data_path = '/mnt/arthurbabey/Data/'
-    data_df = pd.read_csv(data_file)
-    meta_df = pd.read_csv(metadata_file)
+def preprocess_exp1(data_file, metadata_file, normalize):
+    data_df = pd.read_csv(data_file, index_col=0)
+    meta_df = pd.read_csv(metadata_file, index_col=0)
     merged_df = pd.merge(data_df, meta_df, on='SAMPLE_ID')
     merged_df.rename(columns={'TARGET_VAR_BIN': 'target'}, inplace=True)
+    merged_df.drop(columns=['SAMPLE_ID', 'TARGET_VAR_NUM'], inplace=True, errors='ignore')
 
-    # drop the continous target to use only categorical one
-    if 'TARGET_VAR_NUM' in merged_df.columns:
-        merged_df.drop(columns=['TARGET_VAR_NUM'], inplace=True)
-
-    # LabelEncoding for target and other categorical variable
+    # Label encode categorical variables
+    categorical_cols = ['target', 'IND_VAR_1', 'IND_VAR_2', 'IND_VAR_3']
     label_encoder = LabelEncoder()
-    for col in merged_df.select_dtypes(include=['object']):
-        merged_df[col] = label_encoder.fit_transform(merged_df[col])
+    for col in categorical_cols:
+        if col in merged_df.columns:
+            merged_df[col] = label_encoder.fit_transform(merged_df[col])
+
+    # Standard scale non-categorical variables
+    if normalize:
+        non_categorical_cols = merged_df.columns.difference(categorical_cols)
+        scaler = MinMaxScaler()
+        merged_df[non_categorical_cols] = scaler.fit_transform(merged_df[non_categorical_cols])
 
     return merged_df
 

@@ -41,5 +41,5 @@ result_path:
   description: "The path to save the results."
 
 experiment_name:
-  value: "EXP1_TRANSCRIPTOMICS"
+  value: "EXP1_TRANSCRIPTOMICS_regression"
   description: "The file name to save the results."

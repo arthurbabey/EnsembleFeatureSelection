@@ -52,15 +52,16 @@ def validate_config(config):
             raise ValueError("Invalid value for num_repeats. It should be an integer between 1 and 10.")
 
 
-def preprocess_exp1(data_file, metadata_file, normalize, task):
+def preprocess_exp1(data_file, metadata_file, normalize, task='regression'):
     data_df = pd.read_csv(data_file, index_col=0)
     meta_df = pd.read_csv(metadata_file, index_col=0)
     merged_df = pd.merge(data_df, meta_df, on='SAMPLE_ID')
-    merged_df.rename(columns={'TARGET_VAR_NUM': 'target'}, inplace=True)
     if task == 'regression':
+        merged_df.rename(columns={'TARGET_VAR_NUM': 'target'}, inplace=True)
         merged_df.drop(columns=['SAMPLE_ID', 'TARGET_VAR_BIN'], inplace=True, errors='ignore')
         categorical_cols = ['IND_VAR_1', 'IND_VAR_2', 'IND_VAR_3']
     elif task == 'classification':
+        merged_df.rename(columns={'TARGET_VAR_BIN': 'target'}, inplace=True)
         merged_df.drop(columns=['SAMPLE_ID', 'TARGET_VAR_NUM'], inplace=True, errors='ignore')
         categorical_cols = ['target', 'IND_VAR_1', 'IND_VAR_2', 'IND_VAR_3']
         
@@ -73,6 +74,7 @@ def preprocess_exp1(data_file, metadata_file, normalize, task):
     # Standard scale non-categorical variables
     if normalize:
         non_categorical_cols = merged_df.columns.difference(categorical_cols)
+        non_categorical_cols = non_categorical_cols.drop('target', errors='ignore')
         scaler = MinMaxScaler()
         merged_df[non_categorical_cols] = scaler.fit_transform(merged_df[non_categorical_cols])
 

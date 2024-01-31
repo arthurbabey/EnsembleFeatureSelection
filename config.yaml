@@ -26,7 +26,12 @@ num_repeats:
 normalize:
   value: False
   description: "Boolean to normalize continous variable."
+  valid_values: ["regression", "classification"]
 
+task:
+  value: "regression"
+  description: "ML task, either regression or classification"
+  
 data_path:
   value: "/mnt/arthurbabey/Data/"
   description: "The path to the data folder."

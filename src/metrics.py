@@ -42,7 +42,6 @@ def compute_performance_metrics(classifier, task, X_train, y_train, X_test, y_te
 
     # Compute appropriate performance metrics based on task type
     if task == 'classification':
-        # Compute accuracy
         accuracy = accuracy_score(y_test, y_pred)
 
         # Compute AUROC (if classifier supports predict_proba)
@@ -58,19 +57,14 @@ def compute_performance_metrics(classifier, task, X_train, y_train, X_test, y_te
         else:
             auroc = None  # Not applicable for classifiers that don't have predict_proba
 
-        # Compute MAE
         mae = mean_absolute_error(y_test, y_pred)
-
-        # Store results for classification
         results = {'accuracy': accuracy, 'AUROC': auroc, 'MAE': mae}
+        
     elif task == 'regression':
-        # Compute MAE, R-squared, and RMSE
         mae = mean_absolute_error(y_test, y_pred)
         r2 = r2_score(y_test, y_pred)
         rmse = np.sqrt(mean_squared_error(y_test, y_pred))
-
-        # Store results for regression
-        results = {'accuracy': mae, 'AUROC': r2, 'MAE': rmse}
+        results = {'MAE': mae, 'R2': r2, 'RMSE': rmse}
     else:
         raise ValueError("Invalid task type")
 

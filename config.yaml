@@ -8,7 +8,7 @@ classifier:
   valid_values: ["RF", "naiveBayes", "bagging"]
 
 fs_methods:
-  value: ["feature_selection_svm", "feature_selection_mutual_info", "feature_selection_xgboost"]
+  value: ["feature_selection_f_statistic", "feature_selection_mutual_info", "feature_selection_random_forest"]
   description: "List of feature selection methods to use. You can choose one or more methods."
   valid_values: ["feature_selection_f_statistic", "feature_selection_mutual_info", "feature_selection_svm", "feature_selection_random_forest", "feature_selection_xgboost", "feature_selection_rfe_rf"]
 

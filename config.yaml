@@ -29,7 +29,7 @@ normalize:
   valid_values: ["regression", "classification"]
 
 task:
-  value: "regression"
+  value: "classification"
   description: "ML task, either regression or classification"
   
 data_path:

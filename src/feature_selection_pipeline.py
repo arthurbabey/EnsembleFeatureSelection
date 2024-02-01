@@ -168,9 +168,16 @@ class FeatureSelectionPipeline:
                 train_data,
                 test_data,
             )
-            result_dicts[0][(idx, group_name)] = results["accuracy"]
-            result_dicts[1][(idx, group_name)] = results["AUROC"]
-            result_dicts[2][(idx, group_name)] = results["MAE"]
+
+            if self.taks == 'classification':
+                result_dicts[0][(idx, group_name)] = results["accuracy"]
+                result_dicts[1][(idx, group_name)] = results["AUROC"]
+                result_dicts[2][(idx, group_name)] = results["MAE"] #should be minimized
+            elif self.task == 'regression':
+                result_dicts[0][(idx, group_name)] = results["MAE"] #should be minimized
+                result_dicts[1][(idx, group_name)] = results["R2"]
+                result_dicts[2][(idx, group_name)] = results["RMSE"] #should be minimized
+                
             features_stability = [
                 [
                     feature.get_name()
@@ -216,6 +223,16 @@ class FeatureSelectionPipeline:
         # first list of the list is : mean accs for group1, means AUROC for group2 etc
         list_of_means = calculate_means(result_dicts, self.subgroup_names)
 
+        # taking the negative to maximize MAE and RMSE
+        if self.task == 'classification':
+            mae_index = 2
+            list_of_means = [[-mean if idx == mae_index else mean for mean in means] for means in list_of_means]
+        elif self.task == 'regression':
+            mae_index = 0
+            rmse_index = 2
+            list_of_means = [[-mean if idx in (mae_index, rmse_index) else mean for mean in means] for means in list_of_means]
+
+            
         # find the best group using average metrics
         best_group_name = self._compute_pareto_analysis(
             groups=list_of_means, names=self.subgroup_names
@@ -225,6 +242,16 @@ class FeatureSelectionPipeline:
             best_group_name,
             *result_dicts
         )
+
+        # taking the negative to maximize MAE and RMSE
+        if self.task == 'classification':
+            mae_index = 2
+            best_group_metrics = [[-metric if idx == mae_index else metric for metric in group_metrics] for group_metrics in best_group_metrics]
+        elif self.task == 'regression':
+            mae_index = 0
+            rmse_index = 2
+            best_group_metrics = [[-metric if idx in (mae_index, rmse_index) else metric for metric in group_metrics] for group_metrics in best_group_metrics]
+
         
         # find the best repeat using metrics from best group only
         best_repeat = self._compute_pareto_analysis(

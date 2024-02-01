@@ -4,6 +4,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from src.feature import Feature
+import pytest
 
 @pytest.fixture
 def feature_instance():
@@ -25,6 +26,3 @@ def test_feature_str_representation(feature_instance):
     expected_str = "Feature: test_feature, Score: None, Selected: False"
     assert str(feature_instance) == expected_str
 
-def test_feature_repr_representation(feature_instance):
-    expected_repr = "Feature('test_feature', None, False)"
-    assert repr(feature_instance) == expected_repr

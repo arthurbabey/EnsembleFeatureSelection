@@ -1,6 +1,6 @@
 # test_feature.py
 import pytest
-from src.feature import Feature
+from ..src.feature import Feature
 
 @pytest.fixture
 def feature_instance():

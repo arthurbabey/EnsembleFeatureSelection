@@ -6,37 +6,6 @@ from .merging_strategy_methods import *
 from .pareto import ParetoAnalysis
 from .metrics import *
 from .feature import Feature
-
-
-def calculate_means(list_of_dicts, group_names):
-    """
-    Calculate means for each group across dictionaries in a list of dictionaries.
-
-    Args:
-    - list_of_dicts (list): A list of dictionaries containing key-value pairs.
-    - group_names (list): A list of group names, where each group name is a tuple of strings.
-
-    Returns:
-    - means_list (list): A list of lists containing means for each group across dictionaries.
-    """
-    # Initialize means list
-    means_list = []
-
-    # Calculate means for each group
-    for group_name in group_names:
-        group_means = []  # Store means for current group
-
-        # Iterate over dictionaries
-        for d in list_of_dicts:
-            # Filter dictionary keys by current group name and calculate mean
-            group_values = [value for key, value in d.items() if key[1] == group_name]
-            group_mean = np.mean(group_values) if group_values else np.nan  # Use np.nan if no values found
-            group_means.append(group_mean)
-
-        # Append group means to the means list
-        means_list.append(group_means)
-
-    return means_list
     
 
 class FeatureSelectionPipeline:

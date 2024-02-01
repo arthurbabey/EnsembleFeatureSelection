@@ -23,6 +23,7 @@ if __name__ == "__main__":
     data_path = params['data_path']['value']
     result_path = params['result_path']['value']
     experiment_name = params['experiment_name']['value']
+    threshold = None
 
     # create results folders and save config
     experiment_folder = os.path.join(result_path, experiment_name)
@@ -32,7 +33,7 @@ if __name__ == "__main__":
 
     # Run pipeline
     dataset = preprocess_exp1(data_path+'EXP1_TRANSCRIPTOMICS.csv', data_path+'EXP1_METADATA.csv', normalize=normalize, task=task)
-    pipeline = FeatureSelectionPipeline(dataset, fs_methods, merging_strategy, classifier, num_repeats)
+    pipeline = FeatureSelectionPipeline(data = dataset, fs_methods = fs_methods, merging_strategy = merging_strategy, classifier  = classifier, num_repeats = num_repeats, threshold = threshold, task = task)
     best_features, best_repeat, best_group_name = pipeline.iterate_pipeline()
 
     # save results

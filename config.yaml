@@ -8,9 +8,9 @@ classifier:
   valid_values: ["RF", "naiveBayes", "bagging"]
 
 fs_methods:
-  value: ["feature_selection_infogain", "feature_selection_chi2", "feature_selection_xgboost"]
+  value: ["feature_selection_f_statistic", "feature_selection_mutual_info", "feature_selection_xgboost"]
   description: "List of feature selection methods to use. You can choose one or more methods."
-  valid_values: ["feature_selection_infogain", "feature_selection_chi2", "feature_selection_random_forest", "feature_selection_xgboost", "feature_selection_rfe_rf"]
+  valid_values: ["feature_selection_f_statistic", "feature_selection_mutual_info", "feature_selection_svm", "feature_selection_random_forest", "feature_selection_xgboost", "feature_selection_rfe_rf"]
 
 merging_strategy:
   value: "merging_strategy_union_of_pairwise_intersections"
@@ -18,7 +18,7 @@ merging_strategy:
   valid_values: ["merging_strategy_union_of_pairwise_intersections", "merging_strategy_kemeny_young"]
 
 num_repeats:
-  value: 10
+  value: 3
   description: "The number of repeats for the pipeline."
   min_value: 1
   max_value: 10
@@ -29,7 +29,7 @@ normalize:
   valid_values: ["regression", "classification"]
 
 task:
-  value: "classification"
+  value: "regression"
   description: "ML task, either regression or classification"
   
 data_path:

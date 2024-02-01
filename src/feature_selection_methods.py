@@ -1,5 +1,5 @@
 from sklearn.feature_selection import chi2, SelectFromModel, SelectKBest, mutual_info_classif
-from sklearn.svm import SVC
+from sklearn.svm import SVC, SVR
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from xgboost import XGBClassifier, XGBRegressor
 from sklearn.feature_selection import RFE
@@ -65,21 +65,25 @@ def feature_selection_chi2(X, y, task=None, num_features_to_select=None):
 #how to FS with SVM.
 
 
-def feature_selection_svm(X, y, num_features_to_select=None, **kwargs):
-
+def feature_selection_svm(X, y, task='classification', num_features_to_select=None, **kwargs):
     if num_features_to_select is None:
         num_features_to_select = int(0.1 * X.shape[1])
 
-    # Initialize the SVM classifier
-    svm = SVC(kernel='linear', **kwargs)
-    feature_selector = SelectFromModel(svm)
+    # Choose the SVM model based on the task type
+    if task == 'classification':
+        model = SVC(kernel='linear', **kwargs)
+    elif task == 'regression':
+        model = SVR(kernel='linear', **kwargs)
+    else:
+        raise ValueError("Invalid task type. Please specify either 'classification' or 'regression'.")
+
+    # Initialize SelectFromModel with SVM
+    feature_selector = SelectFromModel(model)
     feature_selector.fit(X, y)
     importances = feature_selector.estimator_.coef_.reshape(-1)
     selected_features_indices = importances.argsort()[::-1][:num_features_to_select]
-    print(selected_features_indices)
 
-    return None, selected_features_indices
-
+    return importances, selected_features_indices
 
 
 def feature_selection_random_forest(X, y, task='classification', num_features_to_select=None, **kwargs):
@@ -102,7 +106,6 @@ def feature_selection_random_forest(X, y, task='classification', num_features_to
     selected_features_indices = feature_scores.argsort()[::-1][:num_features_to_select]
 
     return feature_scores, selected_features_indices
-
 
 
 def feature_selection_xgboost(X, y, task='classification', num_features_to_select=None, **kwargs):

@@ -52,25 +52,27 @@ def validate_config(config):
             raise ValueError("Invalid value for num_repeats. It should be an integer between 1 and 10.")
 
 
-def preprocess_exp1(data_file, metadata_file, normalize, task='regression'):
+def preprocess_exp1(data_file, metadata_file, normalize, task):
     data_df = pd.read_csv(data_file, index_col=0)
     meta_df = pd.read_csv(metadata_file, index_col=0)
     merged_df = pd.merge(data_df, meta_df, on='SAMPLE_ID')
-    
-    # Drop rows containing NaN values
-    merged_df.dropna(inplace=True)
-    print("Number of samples after dropping NaN values:", len(merged_df))
-    print("Resulting shape of the DataFrame (samples, features):", merged_df.shape[0], merged_df.shape[1] - 1)
 
     if task == 'regression':
+        print(task)
         merged_df.rename(columns={'TARGET_VAR_NUM': 'target'}, inplace=True)
         merged_df.drop(columns=['SAMPLE_ID', 'TARGET_VAR_BIN'], inplace=True, errors='ignore')
         categorical_cols = ['IND_VAR_1', 'IND_VAR_2', 'IND_VAR_3']
     elif task == 'classification':
+        print(task)
         merged_df.rename(columns={'TARGET_VAR_BIN': 'target'}, inplace=True)
         merged_df.drop(columns=['SAMPLE_ID', 'TARGET_VAR_NUM'], inplace=True, errors='ignore')
         categorical_cols = ['target', 'IND_VAR_1', 'IND_VAR_2', 'IND_VAR_3']
-        
+
+    # Drop rows containing NaN values
+    merged_df.dropna(inplace=True)
+    print("Number of samples after dropping NaN values:", len(merged_df))
+    print("Resulting shape of the DataFrame (samples, features):", merged_df.shape[0], merged_df.shape[1] - 1)
+    
     # Label encode categorical variables
     label_encoder = LabelEncoder()
     for col in categorical_cols:

@@ -1,5 +1,5 @@
-from sklearn.metrics import accuracy_score, roc_auc_score, mean_absolute_error
-from sklearn.ensemble import RandomForestClassifier, BaggingClassifier
+from sklearn.metrics import accuracy_score, mean_absolute_error, mean_squared_error, r2_score, roc_auc_score
+from sklearn.ensemble import RandomForestClassifier, BaggingClassifier, BaggingRegressor, RandomForestRegressor
 from sklearn.naive_bayes import GaussianNB
 
 import rpy2
@@ -8,12 +8,6 @@ from rpy2.robjects.packages import importr
 from rpy2.robjects.vectors import IntVector, StrVector, ListVector
 stabm = importr('stabm')
 
-from sklearn.ensemble import RandomForestClassifier, BaggingClassifier
-from sklearn.naive_bayes import GaussianNB
-from sklearn.metrics import accuracy_score, mean_absolute_error, mean_squared_error, r2_score
-
-from sklearn.metrics import mean_squared_error
-import numpy as np
 
 def compute_performance_metrics(classifier, task, X_train, y_train, X_test, y_test):
     results = {}
@@ -76,7 +70,7 @@ def compute_performance_metrics(classifier, task, X_train, y_train, X_test, y_te
         rmse = np.sqrt(mean_squared_error(y_test, y_pred))
 
         # Store results for regression
-        results = {'MAE': mae, 'R-squared': r2, 'RMSE': rmse}
+        results = {'accuracy': mae, 'AUROC': r2, 'MAE': rmse}
     else:
         raise ValueError("Invalid task type")
 

@@ -8,6 +8,37 @@ from .metrics import *
 from .feature import Feature
 
 
+def calculate_means(list_of_dicts, group_names):
+    """
+    Calculate means for each group across dictionaries in a list of dictionaries.
+
+    Args:
+    - list_of_dicts (list): A list of dictionaries containing key-value pairs.
+    - group_names (list): A list of group names, where each group name is a tuple of strings.
+
+    Returns:
+    - means_list (list): A list of lists containing means for each group across dictionaries.
+    """
+    # Initialize means list
+    means_list = []
+
+    # Calculate means for each group
+    for group_name in group_names:
+        group_means = []  # Store means for current group
+
+        # Iterate over dictionaries
+        for d in list_of_dicts:
+            # Filter dictionary keys by current group name and calculate mean
+            group_values = [value for key, value in d.items() if key[1] == group_name]
+            group_mean = np.mean(group_values) if group_values else np.nan  # Use np.nan if no values found
+            group_means.append(group_mean)
+
+        # Append group means to the means list
+        means_list.append(group_means)
+
+    return means_list
+    
+
 class FeatureSelectionPipeline:
     def __init__(self, data, fs_methods, merging_strategy, classifier, num_repeats=10, threshold=None, task='classification'):
         """
@@ -114,7 +145,7 @@ class FeatureSelectionPipeline:
         Performs Pareto analysis to identify best-performing groups or repeats.
 
         Parameters:
-        - groups (list): Group of data to perform the pareto analysis on.
+        - groups (list of list): Group of data to perform the pareto analysis on.
         - names (list): Names of the scores for analysis.
 
         Returns:
@@ -128,14 +159,7 @@ class FeatureSelectionPipeline:
         best_group_name = pareto_results.iloc[0].iloc[0]
         return best_group_name
 
-    def _compute_metrics(self, train_data, test_data, idx):
-        
-        accuracy_results, AUROC_results, MAE_results, stability_results = (
-            {},
-            {},
-            {},
-            {},
-        )
+    def _compute_metrics(self, train_data, test_data, result_dicts, idx):
 
         for group_name in self.subgroup_names:
             results = self.compute_performance(
@@ -144,9 +168,9 @@ class FeatureSelectionPipeline:
                 train_data,
                 test_data,
             )
-            accuracy_results[(idx, group_name)] = results["accuracy"]
-            AUROC_results[(idx, group_name)] = results["AUROC"]
-            MAE_results[(idx, group_name)] = results["MAE"]
+            result_dicts[0][(idx, group_name)] = results["accuracy"]
+            result_dicts[1][(idx, group_name)] = results["AUROC"]
+            result_dicts[2][(idx, group_name)] = results["MAE"]
             features_stability = [
                 [
                     feature.get_name()
@@ -156,9 +180,9 @@ class FeatureSelectionPipeline:
                 for method_name in group_name
             ]
             stability = self.compute_stability(features_stability)
-            stability_results[(idx, group_name)] = stability[0]
+            result_dicts[3][(idx, group_name)] = stability[0]
 
-        return accuracy_results, AUROC_results, MAE_results, stability_results
+        return result_dicts
 
     def iterate_pipeline(self):
         """
@@ -174,45 +198,35 @@ class FeatureSelectionPipeline:
         Returns:
         - tuple: A tuple containing the merged features, the best repeat, and the best group name.
         """
+        # a list of dicts to store the 4 metrics (3 performance and one stability)
+        result_dicts = [{} for _ in range(4)]
 
+        # compute feautres subset, merging and store metrics in dict for each repeat
         for i in range(self.num_repeats):
             print(f"Start repeat {i}")
             train_data, test_data = self.get_data_split(
-                test_size=0.10
+                test_size=0.20
             )  
             self._compute_sbst_and_scores_per_method(train_data=train_data, idx=i)
             self._compute_merging(idx=i)
-            accuracy_results, AUROC_results, MAE_results, stability_results = self._compute_metrics(train_data=train_data, test_data=test_data, idx=i)
-        print(accuracy_results, AUROC_results)
-        mean_accs = self._calculate_mean_metrics_per_repeat(accuracy_results)
-        mean_aurocs = self._calculate_mean_metrics_per_repeat(AUROC_results)
-        mean_maes = self._calculate_mean_metrics_per_repeat(MAE_results)
-        mean_stabs = self._calculate_mean_metrics_per_repeat(stability_results)
+            result_dicts = self._compute_metrics(train_data=train_data, test_data=test_data, result_dicts=result_dicts, idx=i)
 
-        print(mean_accs, mean_aurocs)
 
-        metrics_list = [
-            list(mean_accs.values()),
-            list(mean_aurocs.values()),
-            list(mean_maes.values()),
-            list(mean_stabs.values()),
-        ]
-        # metrics_list = [list(item) for item in zip(*metrics_list)]
-        print(metrics_list)
-        metrics_list = [list(item) for item in zip(*metrics_list)]
-        print(metrics_list)
-        self.metrics = metrics_list
+        # this is list of groups where each groups are a list of mean metrics respecting the orders of result_dicts 
+        # first list of the list is : mean accs for group1, means AUROC for group2 etc
+        list_of_means = calculate_means(result_dicts, self.subgroup_names)
 
+        # find the best group using average metrics
         best_group_name = self._compute_pareto_analysis(
-            groups=metrics_list, names=self.subgroup_names
+            groups=list_of_means, names=self.subgroup_names
         )
-        best_group_metrics = self._create_2d_array(
+
+        best_group_metrics = self._extract_repeat_metrics(
             best_group_name,
-            accuracy_results,
-            AUROC_results,
-            MAE_results,
-            stability_results,
+            *result_dicts
         )
+        
+        # find the best repeat using metrics from best group only
         best_repeat = self._compute_pareto_analysis(
             groups=best_group_metrics, names=[str(i) for i in range(self.num_repeats)]
         )
@@ -285,28 +299,6 @@ class FeatureSelectionPipeline:
         y = data["target"]  # Adjust the column name for your target
         return X, y
 
-    @staticmethod
-    def _calculate_mean_metrics_per_repeat(metrics_results):
-        """
-        Calculates the mean metrics per repeat from a dictionary of metrics results.
-        """
-        # Dictionary to store the sum and count per repeat
-        sum_per_repeat = defaultdict(float)
-        count_per_repeat = defaultdict(int)
-
-        # Calculate sum and count per repeat
-        for (repeat_index, _), metric_value in metrics_results.items():
-            sum_per_repeat[repeat_index] += metric_value
-            count_per_repeat[repeat_index] += 1
-
-        # Calculate mean per repeat across all groups
-        mean_per_repeat = {}
-        for repeat_index, total in sum_per_repeat.items():
-            count = count_per_repeat[repeat_index]
-            mean_per_repeat[repeat_index] = total / count if count > 0 else 0
-
-        return mean_per_repeat
-
     def _compute_features(self, selected_features_indices, feature_scores):
         """
         Computes features based on selected indices and their scores.
@@ -356,7 +348,7 @@ class FeatureSelectionPipeline:
             return accuracy_results, AUROC_results, MAE_results, stability_results
 
     @staticmethod
-    def _create_2d_array(group_name, *result_dicts):
+    def _extract_repeat_metrics(group_name, *result_dicts):
         # Find all unique indices
         indices = sorted(set(key[0] for key in result_dicts[0].keys()))
         # Create a 2D array to store the metrics for the fixed group name

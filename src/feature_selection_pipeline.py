@@ -128,6 +128,38 @@ class FeatureSelectionPipeline:
         best_group_name = pareto_results.iloc[0].iloc[0]
         return best_group_name
 
+    def _compute_metrics(self, train_data, test_data, idx):
+        
+        accuracy_results, AUROC_results, MAE_results, stability_results = (
+            {},
+            {},
+            {},
+            {},
+        )
+
+        for group_name in self.subgroup_names:
+            results = self.compute_performance(
+                list(self.merged_features[(idx, group_name)]),
+                self.classifier,
+                train_data,
+                test_data,
+            )
+            accuracy_results[(idx, group_name)] = results["accuracy"]
+            AUROC_results[(idx, group_name)] = results["AUROC"]
+            MAE_results[(idx, group_name)] = results["MAE"]
+            features_stability = [
+                [
+                    feature.get_name()
+                    for feature in self.FS_subsets[(idx, method_name)]
+                    if feature.get_selected()
+                ]
+                for method_name in group_name
+            ]
+            stability = self.compute_stability(features_stability)
+            stability_results[(idx, group_name)] = stability[0]
+
+        return accuracy_results, AUROC_results, MAE_results, stability_results
+
     def iterate_pipeline(self):
         """
         Runs the entire feature selection and classification pipeline.
@@ -142,57 +174,33 @@ class FeatureSelectionPipeline:
         Returns:
         - tuple: A tuple containing the merged features, the best repeat, and the best group name.
         """
-        # self.metrics = {}
-        accuracy_results, AUROC_results, MAE_results, stability_results = (
-            {},
-            {},
-            {},
-            {},
-        )
+
         for i in range(self.num_repeats):
             print(f"Start repeat {i}")
             train_data, test_data = self.get_data_split(
                 test_size=0.10
-            )  # Split data for ith repeat
+            )  
             self._compute_sbst_and_scores_per_method(train_data=train_data, idx=i)
             self._compute_merging(idx=i)
-            for group_name in self.subgroup_names:
-                results = self.compute_performance(
-                    list(self.merged_features[(i, group_name)]),
-                    self.classifier,
-                    train_data,
-                    test_data,
-                )
-                accuracy_results[(i, group_name)] = results["accuracy"]
-                AUROC_results[(i, group_name)] = results["AUROC"]
-                MAE_results[(i, group_name)] = results["MAE"]
-                features_stability = [
-                    [
-                        feature.get_name()
-                        for feature in self.FS_subsets[(i, method_name)]
-                        if feature.get_selected()
-                    ]
-                    for method_name in group_name
-                ]
-                stability = self.compute_stability(features_stability)
-                stability_results[(i, group_name)] = stability[0]
+            accuracy_results, AUROC_results, MAE_results, stability_results = self._compute_metrics(train_data=train_data, test_data=test_data, idx=i)
+        print(accuracy_results, AUROC_results)
+        mean_accs = self._calculate_mean_metrics_per_repeat(accuracy_results)
+        mean_aurocs = self._calculate_mean_metrics_per_repeat(AUROC_results)
+        mean_maes = self._calculate_mean_metrics_per_repeat(MAE_results)
+        mean_stabs = self._calculate_mean_metrics_per_repeat(stability_results)
 
-        mean_acc_per_repeat = self._calculate_mean_metrics_per_repeat(accuracy_results)
-        mean_auroc_per_repeat = self._calculate_mean_metrics_per_repeat(AUROC_results)
-        mean_mae_per_repeat = self._calculate_mean_metrics_per_repeat(MAE_results)
-        mean_stab_per_repeat = self._calculate_mean_metrics_per_repeat(
-            stability_results
-        )
+        print(mean_accs, mean_aurocs)
 
         metrics_list = [
-            list(mean_acc_per_repeat.values()),
-            list(mean_auroc_per_repeat.values()),
-            list(mean_mae_per_repeat.values()),
-            list(mean_stab_per_repeat.values()),
+            list(mean_accs.values()),
+            list(mean_aurocs.values()),
+            list(mean_maes.values()),
+            list(mean_stabs.values()),
         ]
+        # metrics_list = [list(item) for item in zip(*metrics_list)]
+        print(metrics_list)
         metrics_list = [list(item) for item in zip(*metrics_list)]
-        metrics_list = [list(item) for item in zip(*metrics_list)]
-
+        print(metrics_list)
         self.metrics = metrics_list
 
         best_group_name = self._compute_pareto_analysis(

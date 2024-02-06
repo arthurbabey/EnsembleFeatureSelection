@@ -18,7 +18,6 @@ def feature_selection_f_statistic(X, y, task='classification', num_features_to_s
         f_stat_func = f_classif
     elif task == 'regression':
         f_stat_func = f_regression
-
     selector = SelectKBest(score_func=f_stat_func, k=num_features_to_select)
     selector.fit(X, y)
     feature_scores = selector.scores_

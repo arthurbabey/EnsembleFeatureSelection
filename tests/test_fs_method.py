@@ -14,6 +14,7 @@ import numpy as np
 @pytest.fixture
 def fake_data():
     # Generate random 2D vector for features (100 samples, 50 features)
+    np.random.seed(1)
     X_random = np.random.randint(0, 101, size=(100, 50))
     y = np.random.randint(0, 3, size=100)  # Ensure y has the same length as X_random samples
 

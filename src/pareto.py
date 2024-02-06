@@ -56,14 +56,6 @@ class ParetoAnalysis:
             # scalar 
             self.results[group_index][3] = self.results[group_index][1] - self.results[group_index][2]
 
-    def compute_dominance2(self):
-        for group_index in range(self.num_groups):
-            for metric_index in range(self.num_metrics):
-                self.results[group_index][0] = self.group_names[group_index]
-                if self.is_dominated(group_index, metric_index):
-                    self.results[group_index][2] += 1
-                else:
-                    self.results[group_index][1] += 1
 
     def get_results(self):
         self.compute_dominance()

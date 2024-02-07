@@ -2,10 +2,19 @@ import numpy as np
 import rpy2
 from rpy2.robjects.packages import importr
 from rpy2.robjects.vectors import IntVector, ListVector, StrVector
-from sklearn.ensemble import (BaggingClassifier, BaggingRegressor,
-                              RandomForestClassifier, RandomForestRegressor)
-from sklearn.metrics import (accuracy_score, mean_absolute_error,
-                             mean_squared_error, r2_score, roc_auc_score)
+from sklearn.ensemble import (
+    BaggingClassifier,
+    BaggingRegressor,
+    RandomForestClassifier,
+    RandomForestRegressor,
+)
+from sklearn.metrics import (
+    accuracy_score,
+    mean_absolute_error,
+    mean_squared_error,
+    r2_score,
+    roc_auc_score,
+)
 from sklearn.naive_bayes import GaussianNB
 
 stabm = importr("stabm")

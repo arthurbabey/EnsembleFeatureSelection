@@ -2,8 +2,13 @@ import numpy as np
 from sklearn.base import clone
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.feature_selection import *
-from sklearn.feature_selection import (RFE, SelectFromModel, SelectKBest, chi2,
-                                       mutual_info_classif)
+from sklearn.feature_selection import (
+    RFE,
+    SelectFromModel,
+    SelectKBest,
+    chi2,
+    mutual_info_classif,
+)
 from sklearn.svm import SVC, SVR
 from xgboost import XGBClassifier, XGBRegressor
 

@@ -2,16 +2,20 @@ import os
 
 import numpy as np
 import pandas as pd
-from sklearn.metrics import (accuracy_score, f1_score, precision_score,
-                             recall_score, roc_auc_score)
+from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
+    precision_score,
+    recall_score,
+    roc_auc_score,
+)
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, MinMaxScaler, label_binarize
 from sklearn.svm import SVC
 
 from .feature_selection_methods import *
 from .feature_selection_pipeline import FeatureSelectionPipeline
-from .merging_strategy_methods import \
-    merging_strategy_union_of_pairwise_intersections
+from .merging_strategy_methods import merging_strategy_union_of_pairwise_intersections
 
 
 def compare_performance(selected_features_baseline, selected_features_pipeline, data):

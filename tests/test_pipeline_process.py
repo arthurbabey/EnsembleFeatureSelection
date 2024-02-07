@@ -7,12 +7,15 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from src.feature_selection_methods import (feature_selection_f_statistic,
-                                           feature_selection_mutual_info,
-                                           feature_selection_random_forest)
+from src.feature_selection_methods import (
+    feature_selection_f_statistic,
+    feature_selection_mutual_info,
+    feature_selection_random_forest,
+)
 from src.feature_selection_pipeline import FeatureSelectionPipeline
-from src.merging_strategy_methods import \
-    merging_strategy_union_of_pairwise_intersections
+from src.merging_strategy_methods import (
+    merging_strategy_union_of_pairwise_intersections,
+)
 
 
 @pytest.fixture

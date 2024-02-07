@@ -5,8 +5,9 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import pytest
 
-from src.merging_strategy_methods import \
-    merging_strategy_union_of_pairwise_intersections
+from src.merging_strategy_methods import (
+    merging_strategy_union_of_pairwise_intersections,
+)
 
 
 def test_basic_functionality():

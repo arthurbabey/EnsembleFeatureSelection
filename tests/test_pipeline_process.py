@@ -57,7 +57,11 @@ def pipeline_instance():
 
 
 def test_feature_selection_pipeline(pipeline_instance):
-    best_features, best_repeat, best_group_name = pipeline_instance.iterate_pipeline()
+    (
+        best_features,
+        best_repeat,
+        best_group_name,
+    ) = pipeline_instance.iterate_pipeline()
     assert best_features is not None
     assert best_repeat is not None
     assert best_group_name is not None

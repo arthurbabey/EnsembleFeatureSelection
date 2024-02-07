@@ -115,7 +115,10 @@ def run_feature_selection(
     for _ in range(num_runs):
         # Randomly split the data
         _, data_subset, _, _ = train_test_split(
-            data, train_size=train_size, stratify=data["target"], random_state=None
+            data,
+            train_size=train_size,
+            stratify=data["target"],
+            random_state=None,
         )
 
         # Extract features and labels
@@ -134,14 +137,20 @@ def run_feature_selection(
             merging_strategy = merging_strategy_union_of_pairwise_intersections
             num_repeats = 3
             pipeline = FeatureSelectionPipeline(
-                data_subset, fs_methods, merging_strategy, classifier, num_repeats
+                data_subset,
+                fs_methods,
+                merging_strategy,
+                classifier,
+                num_repeats,
             )
             selected_features, _, _ = pipeline.iterate_pipeline()
 
         elif method == "baseline":
             baseline_feature_selection = feature_selection_chi2
             _, baseline_idx = baseline_feature_selection(
-                X=X_subset, y=y_subset, num_features_to_select=num_features_to_select
+                X=X_subset,
+                y=y_subset,
+                num_features_to_select=num_features_to_select,
             )
             selected_features = data.columns[baseline_idx].to_list()
         else:
@@ -191,7 +200,11 @@ if __name__ == "main":
     data = pd.concat([target_column, data], axis=1)
 
     pipeline_selected_features = run_feature_selection(
-        data, method="pipeline", num_runs=5, train_size=0.8, num_features_to_select=10
+        data,
+        method="pipeline",
+        num_runs=5,
+        train_size=0.8,
+        num_features_to_select=10,
     )
     baseline_selected_features = run_feature_selection(
         data,

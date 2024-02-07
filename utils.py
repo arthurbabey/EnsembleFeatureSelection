@@ -83,14 +83,18 @@ def preprocess_exp1(data_file, metadata_file, normalize, task):
         print(task)
         merged_df.rename(columns={"TARGET_VAR_NUM": "target"}, inplace=True)
         merged_df.drop(
-            columns=["SAMPLE_ID", "TARGET_VAR_BIN"], inplace=True, errors="ignore"
+            columns=["SAMPLE_ID", "TARGET_VAR_BIN"],
+            inplace=True,
+            errors="ignore",
         )
         categorical_cols = ["IND_VAR_1", "IND_VAR_2", "IND_VAR_3"]
     elif task == "classification":
         print(task)
         merged_df.rename(columns={"TARGET_VAR_BIN": "target"}, inplace=True)
         merged_df.drop(
-            columns=["SAMPLE_ID", "TARGET_VAR_NUM"], inplace=True, errors="ignore"
+            columns=["SAMPLE_ID", "TARGET_VAR_NUM"],
+            inplace=True,
+            errors="ignore",
         )
         categorical_cols = ["target", "IND_VAR_1", "IND_VAR_2", "IND_VAR_3"]
 

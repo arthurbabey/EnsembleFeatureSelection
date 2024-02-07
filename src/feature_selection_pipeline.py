@@ -62,7 +62,10 @@ class FeatureSelectionPipeline:
             X_train, y_train = self._get_X_y(train_data)
             # threshold = self.threshold if self.threshold is not None else self.data.shape[1]//10
             selected_feature_scores, selected_features_indices = fs_method(
-                X=X_train, y=y_train, task=self.task, num_features_to_select=None
+                X=X_train,
+                y=y_train,
+                task=self.task,
+                num_features_to_select=None,
             )
             self.FS_subsets[(idx, method_name)] = self._compute_features(
                 selected_features_indices, selected_feature_scores
@@ -265,7 +268,8 @@ class FeatureSelectionPipeline:
 
         # find the best repeat using metrics from best group only
         best_repeat = self._compute_pareto_analysis(
-            groups=best_group_metrics, names=[str(i) for i in range(self.num_repeats)]
+            groups=best_group_metrics,
+            names=[str(i) for i in range(self.num_repeats)],
         )
 
         return (

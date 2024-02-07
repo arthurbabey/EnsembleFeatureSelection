@@ -67,11 +67,15 @@ def test_compute_stability_metrics_with_int_list_different(int_list_different):
     assert compute_stability_metrics(int_list_different)[0] == 0
 
 
-def test_compute_stability_metrics_with_string_list_similar(string_list_similar):
+def test_compute_stability_metrics_with_string_list_similar(
+    string_list_similar,
+):
     assert compute_stability_metrics(string_list_similar)[0] == 1
 
 
-def test_compute_stability_metrics_with_string_list_different(string_list_different):
+def test_compute_stability_metrics_with_string_list_different(
+    string_list_different,
+):
     assert compute_stability_metrics(string_list_different)[0] == 0
 
 
@@ -113,7 +117,12 @@ def test_compute_performance_metrics_invalid_classifier(data):
         match=r"Invalid classifier name '.*'. Please choose among 'RF', 'naiveBayes', or 'bagging'.",
     ):
         compute_performance_metrics(
-            "invalid_classifier", "classification", X_train, y_train, X_test, y_test
+            "invalid_classifier",
+            "classification",
+            X_train,
+            y_train,
+            X_test,
+            y_test,
         )
 
 

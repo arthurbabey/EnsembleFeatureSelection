@@ -19,7 +19,9 @@ jobs:
           python-version: '3.11'  # Specify your Python version here
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          pip install -r requirements.txt
+          Rscript -e 'install.packages("stabm")'  # Install the stabm R package
 
       - name: Run tests
         run: pytest

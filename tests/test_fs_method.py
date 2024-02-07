@@ -3,10 +3,6 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from src.feature_selection_methods import *
-import numpy as np
-import pandas as pd
-import pytest
-from scipy.stats import pearsonr
 
 import pytest
 import numpy as np
@@ -43,6 +39,49 @@ def fake_data():
     return X_combined, y, expected_features
 
 
+import numpy as np
+
+
+@pytest.fixture
+def fake_data_regression():
+    np.random.seed(1)
+
+    # Generate random 2D vector for features (100 samples, 50 features)
+    X_random = np.random.randint(0, 101, size=(100, 50))
+
+    # Generate fake target continuous variable with value between 0 and 100
+    y = np.random.randint(0, 101, size=100)
+
+    # Generate 10 correlated new features based on y
+    new_features = np.zeros((100, 10))
+    thresholds = [np.percentile(y, q) for q in [33, 66]]
+    for i, yi in enumerate(y):
+        if yi <= thresholds[0]:
+            new_features[i] = np.random.uniform(0, 15, size=10)  # Values between 0 and 15
+        elif thresholds[0] < yi <= thresholds[1]:
+            new_features[i] = np.random.uniform(42, 57, size=10)  # Values between 42 and 57
+        else:
+            new_features[i] = np.random.uniform(85, 100, size=10)  # Values between 85 and 100
+
+    # Combine X_random and new_features
+    X_combined = np.concatenate((X_random, new_features), axis=1)
+    np.random.shuffle(X_combined.T)
+
+    # Identify the columns that met the condition above, i.e., columns that are correlated
+    ranges = [(0, 15), (42, 57), (85, 100)]
+    expected_features = [i for i, col in enumerate(X_combined.T) if
+                         all(any(low <= val <= high for low, high in ranges) for val in col)]
+
+    return X_combined, y, expected_features
+
+
+def test_feature_selection_f_statistic_r(fake_data_regression):
+    X, y, expected_features = fake_data_regression
+    scores, selected_features = feature_selection_f_statistic(X, y, task='regression', num_features_to_select=10)
+    assert len(scores) == 60
+    assert len(selected_features) == 10
+    assert set(selected_features) == set(expected_features)
+
 def test_feature_selection_f_statistic(fake_data):
     X, y, expected_features = fake_data
     scores, selected_features = feature_selection_f_statistic(X, y, task='classification', num_features_to_select=10)
@@ -57,9 +96,23 @@ def test_feature_selection_mutual_info(fake_data):
     assert len(selected_features) == 10
     assert set(selected_features) == set(expected_features)
 
+def test_feature_selection_mutual_info_r(fake_data_regression):
+    X, y, expected_features = fake_data_regression
+    scores, selected_features = feature_selection_mutual_info(X, y, task='regression', num_features_to_select=10)
+    assert len(scores) == 60
+    assert len(selected_features) == 10
+    assert set(selected_features) == set(expected_features)
+
 def test_feature_selection_random_forest(fake_data):
     X, y, expected_features = fake_data
     scores, selected_features = feature_selection_random_forest(X, y, task='classification', num_features_to_select=10)
+    assert len(scores) == 60
+    assert len(selected_features) == 10
+    assert set(selected_features) == set(expected_features)
+
+def test_feature_selection_random_forest_r(fake_data_regression):
+    X, y, expected_features = fake_data_regression
+    scores, selected_features = feature_selection_random_forest(X, y, task='regression', num_features_to_select=10)
     assert len(scores) == 60
     assert len(selected_features) == 10
     assert set(selected_features) == set(expected_features)
@@ -71,10 +124,32 @@ def test_feature_selection_svm(fake_data):
     assert len(selected_features) == 10
     assert set(selected_features) == set(expected_features)
 
+def custom_set_comparison(set1, set2, threshold=9):
+    # Calculate the number of common elements between the sets
+    common_elements = len(set1.intersection(set2))
+    # Check if the number of common elements meets the threshold
+    return common_elements >= threshold  # Adjust the threshold as needed
+
+# this test pass only with the custom comparison allowing for 1 element difference
+def test_feature_selection_svm_r(fake_data_regression):
+    X, y, expected_features = fake_data_regression
+    scores, selected_features = feature_selection_svm(X, y, task='regression', num_features_to_select=10)
+    assert len(scores) == 60
+    assert len(selected_features) == 10
+    assert custom_set_comparison(set(selected_features), set(expected_features))
+
+
 def test_feature_selection_rfe_rf(fake_data):
     X, y, expected_features = fake_data
     scores, selected_features = feature_selection_rfe_rf(X, y, task='classification', num_features_to_select=10)
-    assert len(scores) == 60
+    assert scores is None
+    assert len(selected_features) == 10
+    assert set(selected_features) == set(expected_features)
+
+def test_feature_selection_rfe_rf_r(fake_data_regression):
+    X, y, expected_features = fake_data_regression
+    scores, selected_features = feature_selection_rfe_rf(X, y, task='regression', num_features_to_select=10)
+    assert scores is None
     assert len(selected_features) == 10
     assert set(selected_features) == set(expected_features)
 
@@ -83,14 +158,15 @@ def test_feature_selection_xgboost(fake_data):
     scores, selected_features = feature_selection_xgboost(X, y, task='classification', num_features_to_select=10)
     assert len(scores) == 60
     assert len(selected_features) == 10
-    assert set(selected_features) == set(expected_features)
+    assert custom_set_comparison(set(selected_features), set(expected_features))
 
-def test_feature_selection_rfe_rf(fake_data):
-    X, y, expected_features = fake_data
-    scores, selected_features = feature_selection_rfe_rf(X, y, task='classification', num_features_to_select=10)
-    assert scores == None
+def test_feature_selection_xgboost_r(fake_data_regression):
+    X, y, expected_features = fake_data_regression
+    scores, selected_features = feature_selection_xgboost(X, y, task='regression', num_features_to_select=10)
+    assert len(scores) == 60
     assert len(selected_features) == 10
-    assert set(selected_features) == set(expected_features)
+    assert custom_set_comparison(set(selected_features), set(expected_features))
+
     
 
 

@@ -6,5 +6,6 @@ rpy2==3.5.14
 pyyaml==6.0.1
 xgboost==2.0.2
 ranky==0.3.4 
+scipy==1.11.3
 # Development dependencies
 pytest==8.0.0

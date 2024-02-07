@@ -2,6 +2,9 @@
 breast_cancer_data/
 results/
 
+# pycharm
+.idea/
+
 # test notebook
 pipeline_test.ipynb
 Untitled.ipynb

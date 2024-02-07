@@ -18,6 +18,11 @@ jobs:
         with:
           python-version: '3.11'  # Specify your Python version here
 
+      - name: Install R
+        uses: r-lib/actions/setup-r@v1
+        with:
+          r-version: '4.x'  # Specify the R version you want to install
+
       - name: Install dependencies
         run: |
           pip install -r requirements.txt

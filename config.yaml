@@ -31,7 +31,7 @@ normalize:
 task:
   value: "classification"
   description: "ML task, either regression or classification"
-  
+
 data_path:
   value: "/mnt/arthurbabey/Data/"
   description: "The path to the data folder."

@@ -1,6 +1,6 @@
 from itertools import combinations
-from ranky import kemeny_young, borda
 
+from ranky import borda, kemeny_young
 
 # here major difference is that set based method like union works with subsets of features
 # and produces a new set combining the features present in features
@@ -24,7 +24,9 @@ def merging_strategy_union_of_pairwise_intersections(subsets):
 # could seed here
 def merging_strategy_kemeny_young(scores, k_features=None, **kwargs):
     scores_merged = kemeny_young(m=scores, axis=0, **kwargs)
-    sorted_indices = sorted(range(len(scores_merged)), key=lambda i: scores_merged[i], reverse=True)
+    sorted_indices = sorted(
+        range(len(scores_merged)), key=lambda i: scores_merged[i], reverse=True
+    )
     if k_features is not None:
         return sorted_indices[:k_features]
     else:
@@ -34,7 +36,9 @@ def merging_strategy_kemeny_young(scores, k_features=None, **kwargs):
 # need to be pd.df to use method='median'
 def merging_strategy_borda(scores, k_features=None, **kwargs):
     scores_merged = borda(m=scores, **kwargs)
-    sorted_indices = sorted(range(len(scores_merged)), key=lambda i: scores_merged[i], reverse=True)
+    sorted_indices = sorted(
+        range(len(scores_merged)), key=lambda i: scores_merged[i], reverse=True
+    )
     if k_features is not None:
         return sorted_indices[:k_features]
     else:

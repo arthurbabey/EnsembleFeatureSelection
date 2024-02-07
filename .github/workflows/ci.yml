@@ -21,6 +21,6 @@ jobs:
         uses: r-lib/actions/setup-r-dependencies@v2
         with:
           packages: |
-            any::stabm 
+            any::stabm
       - name: Run tests
         run: pytest

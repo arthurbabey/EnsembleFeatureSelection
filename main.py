@@ -1,6 +1,7 @@
 import os
 import pickle
 import shutil
+
 from src.feature_selection_pipeline import FeatureSelectionPipeline
 from utils import *
 
@@ -10,19 +11,20 @@ os.sched_setaffinity(0, range(cores_to_use))
 
 
 if __name__ == "__main__":
-
     # parse config file
-    config_file = 'config.yaml'
+    config_file = "config.yaml"
     params = read_config(config_file)
-    classifier = params['classifier']['value']
-    fs_methods = params['fs_methods']['value']
-    merging_strategy = params['merging_strategy']['value']
-    num_repeats = params.get('num_repeats', {'value': 1})['value']  # Default to 1 if not provided
-    normalize = params['normalize']['value']
-    task = params['task']['value']
-    data_path = params['data_path']['value']
-    result_path = params['result_path']['value']
-    experiment_name = params['experiment_name']['value']
+    classifier = params["classifier"]["value"]
+    fs_methods = params["fs_methods"]["value"]
+    merging_strategy = params["merging_strategy"]["value"]
+    num_repeats = params.get("num_repeats", {"value": 1})[
+        "value"
+    ]  # Default to 1 if not provided
+    normalize = params["normalize"]["value"]
+    task = params["task"]["value"]
+    data_path = params["data_path"]["value"]
+    result_path = params["result_path"]["value"]
+    experiment_name = params["experiment_name"]["value"]
     threshold = None
 
     # create results folders and save config
@@ -32,8 +34,21 @@ if __name__ == "__main__":
     shutil.copy(config_file, os.path.join(experiment_folder, "config.yaml"))
 
     # Run pipeline
-    dataset = preprocess_exp1(data_path+'EXP1_TRANSCRIPTOMICS.csv', data_path+'EXP1_METADATA.csv', normalize=normalize, task=task)
-    pipeline = FeatureSelectionPipeline(data=dataset, fs_methods=fs_methods, merging_strategy=merging_strategy, classifier=classifier, num_repeats=num_repeats, threshold=threshold, task=task)
+    dataset = preprocess_exp1(
+        data_path + "EXP1_TRANSCRIPTOMICS.csv",
+        data_path + "EXP1_METADATA.csv",
+        normalize=normalize,
+        task=task,
+    )
+    pipeline = FeatureSelectionPipeline(
+        data=dataset,
+        fs_methods=fs_methods,
+        merging_strategy=merging_strategy,
+        classifier=classifier,
+        num_repeats=num_repeats,
+        threshold=threshold,
+        task=task,
+    )
     best_features, best_repeat, best_group_name = pipeline.iterate_pipeline()
 
     # save results

@@ -1,15 +1,25 @@
 from collections import defaultdict
-from sklearn.model_selection import train_test_split
-import pandas as pd
 
-from .merging_strategy_methods import *
-from .pareto import ParetoAnalysis
-from .metrics import *
+import pandas as pd
+from sklearn.model_selection import train_test_split
+
 from .feature import Feature
-    
+from .merging_strategy_methods import *
+from .metrics import *
+from .pareto import ParetoAnalysis
+
 
 class FeatureSelectionPipeline:
-    def __init__(self, data, fs_methods, merging_strategy, classifier, num_repeats=10, threshold=None, task='classification'):
+    def __init__(
+        self,
+        data,
+        fs_methods,
+        merging_strategy,
+        classifier,
+        num_repeats=10,
+        threshold=None,
+        task="classification",
+    ):
         """
         Initializes a FeatureSelectionPipeline object.
 
@@ -91,7 +101,6 @@ class FeatureSelectionPipeline:
                 merging_strategy_borda,
                 merging_strategy_kemeny_young,
             ):
-
                 group_features_scores = [
                     [
                         feature.get_score()
@@ -129,7 +138,6 @@ class FeatureSelectionPipeline:
         return best_group_name
 
     def _compute_metrics(self, train_data, test_data, result_dicts, idx):
-
         for group_name in self.subgroup_names:
             results = self.compute_performance(
                 list(self.merged_features[(idx, group_name)]),
@@ -138,15 +146,21 @@ class FeatureSelectionPipeline:
                 test_data,
             )
 
-            if self.task == 'classification':
+            if self.task == "classification":
                 result_dicts[0][(idx, group_name)] = results["accuracy"]
                 result_dicts[1][(idx, group_name)] = results["AUROC"]
-                result_dicts[2][(idx, group_name)] = results["MAE"] #should be minimized
-            elif self.task == 'regression':
-                result_dicts[0][(idx, group_name)] = results["MAE"] #should be minimized
+                result_dicts[2][(idx, group_name)] = results[
+                    "MAE"
+                ]  # should be minimized
+            elif self.task == "regression":
+                result_dicts[0][(idx, group_name)] = results[
+                    "MAE"
+                ]  # should be minimized
                 result_dicts[1][(idx, group_name)] = results["R2"]
-                result_dicts[2][(idx, group_name)] = results["RMSE"] #should be minimized
-                
+                result_dicts[2][(idx, group_name)] = results[
+                    "RMSE"
+                ]  # should be minimized
+
             features_stability = [
                 [
                     feature.get_name()
@@ -180,52 +194,75 @@ class FeatureSelectionPipeline:
         # compute feautres subset, merging and store metrics in dict for each repeat
         for i in range(self.num_repeats):
             print(f"Start repeat {i}")
-            train_data, test_data = self.get_data_split(
-                test_size=0.20
-            )  
+            train_data, test_data = self.get_data_split(test_size=0.20)
             self._compute_sbst_and_scores_per_method(train_data=train_data, idx=i)
             self._compute_merging(idx=i)
-            result_dicts = self._compute_metrics(train_data=train_data, test_data=test_data, result_dicts=result_dicts, idx=i)
+            result_dicts = self._compute_metrics(
+                train_data=train_data,
+                test_data=test_data,
+                result_dicts=result_dicts,
+                idx=i,
+            )
 
-
-        # this is list of groups where each groups are a list of mean metrics respecting the orders of result_dicts 
+        # this is list of groups where each groups are a list of mean metrics respecting the orders of result_dicts
         # first list of the list is : mean accs for group1, means AUROC for group2 etc
         list_of_means = self._calculate_means(result_dicts, self.subgroup_names)
 
         # taking the negative to maximize MAE and RMSE
-        if self.task == 'classification':
+        if self.task == "classification":
             mae_index = 2
-            list_of_means = [[-mean if idx == mae_index else mean for idx, mean in enumerate(means)] for means in list_of_means]
-        elif self.task == 'regression':
+            list_of_means = [
+                [-mean if idx == mae_index else mean for idx, mean in enumerate(means)]
+                for means in list_of_means
+            ]
+        elif self.task == "regression":
             mae_index = 0
             rmse_index = 2
-            list_of_means = [[-mean if idx in (mae_index, rmse_index) else mean for idx, mean in enumerate(means)] for means in list_of_means]
-
+            list_of_means = [
+                [
+                    -mean if idx in (mae_index, rmse_index) else mean
+                    for idx, mean in enumerate(means)
+                ]
+                for means in list_of_means
+            ]
 
         # add number of methods to maximize; ensuring diversity
-        metrics = [mean + [len(group_name)] for mean, group_name in zip(list_of_means, self.subgroup_names)]
-        metrics_names = self.subgroup_names + ['number of methods']
-            
+        metrics = [
+            mean + [len(group_name)]
+            for mean, group_name in zip(list_of_means, self.subgroup_names)
+        ]
+        metrics_names = self.subgroup_names + ["number of methods"]
+
         # find the best group using average metrics
         best_group_name = self._compute_pareto_analysis(
             groups=list_of_means, names=metrics_names
         )
 
         best_group_metrics = self._extract_repeat_metrics(
-            best_group_name,
-            *result_dicts
+            best_group_name, *result_dicts
         )
 
         # taking the negative to maximize MAE and RMSE
-        if self.task == 'classification':
+        if self.task == "classification":
             mae_index = 2
-            best_group_metrics = [[-metric if idx == mae_index else metric for idx, metric in enumerate(group_metrics)] for group_metrics in best_group_metrics]
-        elif self.task == 'regression':
+            best_group_metrics = [
+                [
+                    -metric if idx == mae_index else metric
+                    for idx, metric in enumerate(group_metrics)
+                ]
+                for group_metrics in best_group_metrics
+            ]
+        elif self.task == "regression":
             mae_index = 0
             rmse_index = 2
-            best_group_metrics = [[-metric if idx in (mae_index, rmse_index) else metric for idx, metric in enumerate(group_metrics)] for group_metrics in best_group_metrics]
+            best_group_metrics = [
+                [
+                    -metric if idx in (mae_index, rmse_index) else metric
+                    for idx, metric in enumerate(group_metrics)
+                ]
+                for group_metrics in best_group_metrics
+            ]
 
-        
         # find the best repeat using metrics from best group only
         best_repeat = self._compute_pareto_analysis(
             groups=best_group_metrics, names=[str(i) for i in range(self.num_repeats)]
@@ -278,15 +315,13 @@ class FeatureSelectionPipeline:
         """
         Splits the data into training and testing sets.
         """
-        if self.task == 'classification':
+        if self.task == "classification":
             train_data, test_data = train_test_split(
                 self.data, test_size=test_size, stratify=self.data["target"]
             )
             return train_data, test_data
-        elif self.task == 'regression':
-            train_data, test_data = train_test_split(
-                self.data, test_size=test_size
-            )
+        elif self.task == "regression":
+            train_data, test_data = train_test_split(self.data, test_size=test_size)
         else:
             raise ValueError("Unsupported task type")
         return train_data, test_data
@@ -298,9 +333,13 @@ class FeatureSelectionPipeline:
         """
         # test to assert data is a dataframe
         if not isinstance(data, pd.DataFrame):
-            raise ValueError("Data format not supported. Please provide a pandas DataFrame.")
+            raise ValueError(
+                "Data format not supported. Please provide a pandas DataFrame."
+            )
         if "target" not in data.columns:
-            raise ValueError("'target' column not found in the data. Please rename your dependant variable to 'target'")
+            raise ValueError(
+                "'target' column not found in the data. Please rename your dependant variable to 'target'"
+            )
         X = data.drop(columns=["target"])
         y = data["target"]
         return X, y
@@ -331,22 +370,26 @@ class FeatureSelectionPipeline:
     def _calculate_means(list_of_dicts, group_names):
         """
         Calculate means for each group across dictionaries in a list of dictionaries.
-    
+
         Args:
         - list_of_dicts (list): A list of dictionaries containing key-value pairs.
         - group_names (list): A list of group names, where each group name is a tuple of strings.
-    
+
         Returns:
         - means_list (list): A list of lists containing means for each group across dictionaries.
         """
         means_list = []
-    
+
         for group_name in group_names:
-            group_means = []  
+            group_means = []
             for d in list_of_dicts:
-                group_values = [value for key, value in d.items() if key[1] == group_name]
-                group_mean = np.mean(group_values) if group_values else np.nan  # Use np.nan if no values found
-                group_means.append(group_mean)   
+                group_values = [
+                    value for key, value in d.items() if key[1] == group_name
+                ]
+                group_mean = (
+                    np.mean(group_values) if group_values else np.nan
+                )  # Use np.nan if no values found
+                group_means.append(group_mean)
             means_list.append(group_means)
 
         return means_list
@@ -365,21 +408,27 @@ class FeatureSelectionPipeline:
 
     def compute_performance(self, features, classifier, train_data, test_data):
         if "target" not in train_data.columns:
-            raise ValueError("'target' column not found in the data. Please rename your dependant variable to 'target'")
+            raise ValueError(
+                "'target' column not found in the data. Please rename your dependant variable to 'target'"
+            )
 
         sliced_train_data = train_data[features + ["target"]]
         sliced_test_data = test_data[features + ["target"]]
 
         X_train, y_train = self._get_X_y(data=sliced_train_data)
         X_test, y_test = self._get_X_y(data=sliced_test_data)
-        return compute_performance_metrics(classifier, self.task, X_train, y_train, X_test, y_test)
+        return compute_performance_metrics(
+            classifier, self.task, X_train, y_train, X_test, y_test
+        )
 
     @staticmethod
     def compute_stability(features_list):
         return compute_stability_metrics(features_list)
 
     def __str__(self):
-        return (f"Feature selection pipeline with : "
-                f"merging strategy : {self.merging_strategy}, "
-                f"feature selection methods: {self.fs_methods}, "
-                f"Number of repeats: {self.num_repeats}")
+        return (
+            f"Feature selection pipeline with : "
+            f"merging strategy : {self.merging_strategy}, "
+            f"feature selection methods: {self.fs_methods}, "
+            f"Number of repeats: {self.num_repeats}"
+        )

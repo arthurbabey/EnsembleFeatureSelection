@@ -1,5 +1,6 @@
 import pandas as pd
 
+
 class ParetoAnalysis:
     def __init__(self, data, group_names):
         self.data = data
@@ -19,12 +20,12 @@ class ParetoAnalysis:
                 # compare group and other group
                 # check for all metrics if group < other_group => dom_count +=1
                 if all(
-                    group[metric_index] >= other_group[metric_index] 
+                    group[metric_index] >= other_group[metric_index]
                     for metric_index in range(self.num_metrics)
-                    ) and any(
-                        group[metric_index] > other_group[metric_index] 
-                        for metric_index in range(self.num_metrics)
-                    ):
+                ) and any(
+                    group[metric_index] > other_group[metric_index]
+                    for metric_index in range(self.num_metrics)
+                ):
                     dominate_count += 1
         return dominate_count
 
@@ -36,12 +37,12 @@ class ParetoAnalysis:
                 # compare group and other group
                 # check for all metrics if group < other_group => dom_count +=1
                 if all(
-                    group[metric_index] <= other_group[metric_index] 
+                    group[metric_index] <= other_group[metric_index]
                     for metric_index in range(self.num_metrics)
-                    ) and any(
-                        group[metric_index] < other_group[metric_index] 
-                        for metric_index in range(self.num_metrics)
-                    ):
+                ) and any(
+                    group[metric_index] < other_group[metric_index]
+                    for metric_index in range(self.num_metrics)
+                ):
                     is_dominated_count += 1
         return is_dominated_count
 
@@ -49,13 +50,14 @@ class ParetoAnalysis:
         for group_index in range(self.num_groups):
             # group ID
             self.results[group_index][0] = self.group_names[group_index]
-            # dominate count 
+            # dominate count
             self.results[group_index][1] = self.group_dominate_count(group_index)
             # is dominated count
             self.results[group_index][2] = self.group_isdominated_count(group_index)
-            # scalar 
-            self.results[group_index][3] = self.results[group_index][1] - self.results[group_index][2]
-
+            # scalar
+            self.results[group_index][3] = (
+                self.results[group_index][1] - self.results[group_index][2]
+            )
 
     def get_results(self):
         self.compute_dominance()

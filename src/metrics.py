@@ -12,29 +12,29 @@ stabm = importr('stabm')
 def compute_performance_metrics(classifier, task, X_train, y_train, X_test, y_test):
     results = {}
 
+    # assert user input
+    if classifier not in ['RF', 'naiveBayes', 'bagging']:
+        raise ValueError(
+            f"Invalid classifier name '{classifier}'. Please choose among 'RF', 'naiveBayes', or 'bagging'.")
+    if task not in ['classification', 'regression']:
+        raise ValueError("Invalid task type")
+
     # Initialize classifier based on user input
     if classifier == 'RF':
         if task == 'classification':
             clf = RandomForestClassifier()
         elif task == 'regression':
             clf = RandomForestRegressor()
-        else:
-            raise ValueError("Invalid task type")
     elif classifier == 'naiveBayes':
         if task == 'classification':
             clf = GaussianNB()
-        else:
+        elif task == 'regression':
             raise ValueError("Naive Bayes is not suitable for regression task")
     elif classifier == 'bagging':
         if task == 'classification':
             clf = BaggingClassifier()
         elif task == 'regression':
             clf = BaggingRegressor()
-        else:
-            raise ValueError("Invalid task type")
-    else:
-        raise ValueError(
-            f"Invalid classifier name '{classifier}'. Please choose among 'RF', 'naiveBayes', or 'bagging'.")
 
     # Fit the classifier and make predictions
     clf.fit(X_train, y_train)
@@ -65,8 +65,6 @@ def compute_performance_metrics(classifier, task, X_train, y_train, X_test, y_te
         r2 = r2_score(y_test, y_pred)
         rmse = np.sqrt(mean_squared_error(y_test, y_pred))
         results = {'MAE': mae, 'R2': r2, 'RMSE': rmse}
-    else:
-        raise ValueError("Invalid task type")
 
     return results
 

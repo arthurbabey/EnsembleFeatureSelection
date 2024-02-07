@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
     # Run pipeline
     dataset = preprocess_exp1(data_path+'EXP1_TRANSCRIPTOMICS.csv', data_path+'EXP1_METADATA.csv', normalize=normalize, task=task)
-    pipeline = FeatureSelectionPipeline(data = dataset, fs_methods = fs_methods, merging_strategy = merging_strategy, classifier  = classifier, num_repeats = num_repeats, threshold = threshold, task = task)
+    pipeline = FeatureSelectionPipeline(data=dataset, fs_methods=fs_methods, merging_strategy=merging_strategy, classifier=classifier, num_repeats=num_repeats, threshold=threshold, task=task)
     best_features, best_repeat, best_group_name = pipeline.iterate_pipeline()
 
     # save results

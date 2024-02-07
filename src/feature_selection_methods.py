@@ -18,7 +18,6 @@ def feature_selection_f_statistic(X, y, task='classification', num_features_to_s
         f_stat_func = f_classif
     elif task == 'regression':
         f_stat_func = f_regression
-
     selector = SelectKBest(score_func=f_stat_func, k=num_features_to_select)
     selector.fit(X, y)
     feature_scores = selector.scores_
@@ -63,7 +62,7 @@ def feature_selection_chi2(X, y, task=None, num_features_to_select=None):
 
 #Error with this function, selected_features_indices are not the good feature list, need to understand
 #how to FS with SVM.
-
+# now this version works but probably only for linear kernel
 
 def feature_selection_svm(X, y, task='classification', num_features_to_select=None, **kwargs):
     if num_features_to_select is None:
@@ -80,10 +79,11 @@ def feature_selection_svm(X, y, task='classification', num_features_to_select=No
     # Initialize SelectFromModel with SVM
     feature_selector = SelectFromModel(model)
     feature_selector.fit(X, y)
-    importances = feature_selector.estimator_.coef_.reshape(-1)
-    selected_features_indices = importances.argsort()[::-1][:num_features_to_select]
 
-    return importances, selected_features_indices
+    feature_scores = np.abs(feature_selector.estimator_.coef_).mean(axis=0)
+    selected_features_indices = feature_scores.argsort()[::-1][:num_features_to_select]
+
+    return feature_scores, selected_features_indices
 
 
 def feature_selection_random_forest(X, y, task='classification', num_features_to_select=None, **kwargs):
@@ -145,7 +145,7 @@ def feature_selection_rfe_rf(X, y, task='classification', num_features_to_select
     rfe = RFE(model, n_features_to_select=num_features_to_select)
     rfe.fit(X, y)
 
-    selected_features_indices = rfe.support_
+    selected_features_indices = np.where(rfe.support_)[0]
 
     return None, selected_features_indices
 

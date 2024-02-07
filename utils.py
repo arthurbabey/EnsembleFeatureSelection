@@ -70,8 +70,8 @@ def preprocess_exp1(data_file, metadata_file, normalize, task):
 
     # Drop rows containing NaN values
     merged_df.dropna(inplace=True)
-    print("Number of samples after dropping NaN values:", len(merged_df))
-    print("Resulting shape of the DataFrame (samples, features):", merged_df.shape[0], merged_df.shape[1] - 1)
+    #print("Number of samples after dropping NaN values:", len(merged_df))
+    #print("Resulting shape of the DataFrame (samples, features):", merged_df.shape[0], merged_df.shape[1] - 1)
     
     # Label encode categorical variables
     label_encoder = LabelEncoder()

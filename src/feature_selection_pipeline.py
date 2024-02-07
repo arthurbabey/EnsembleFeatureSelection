@@ -125,7 +125,7 @@ class FeatureSelectionPipeline:
         """
         pareto = ParetoAnalysis(groups, names)
         pareto_results = pareto.get_results()
-        best_group_name = pareto_results.iloc[0].iloc[0]
+        best_group_name = pareto_results[0][0]
         return best_group_name
 
     def _compute_metrics(self, train_data, test_data, result_dicts, idx):
@@ -282,11 +282,13 @@ class FeatureSelectionPipeline:
             train_data, test_data = train_test_split(
                 self.data, test_size=test_size, stratify=self.data["target"]
             )
+            return train_data, test_data
         elif self.task == 'regression':
             train_data, test_data = train_test_split(
                 self.data, test_size=test_size
             )
-            
+        else:
+            raise ValueError("Unsupported task type")
         return train_data, test_data
 
     @staticmethod
@@ -294,9 +296,13 @@ class FeatureSelectionPipeline:
         """
         Extracts features (X) and target (y) from the given data.
         """
-        # Assuming data is structured with features (X) and target (y)
-        X = data.drop(columns=["target"])  # Adjust the column name for your target
-        y = data["target"]  # Adjust the column name for your target
+        # test to assert data is a dataframe
+        if not isinstance(data, pd.DataFrame):
+            raise ValueError("Data format not supported. Please provide a pandas DataFrame.")
+        if "target" not in data.columns:
+            raise ValueError("'target' column not found in the data. Please rename your dependant variable to 'target'")
+        X = data.drop(columns=["target"])
+        y = data["target"]
         return X, y
 
     def _compute_features(self, selected_features_indices, feature_scores):
@@ -305,7 +311,6 @@ class FeatureSelectionPipeline:
         """
         all_features = []
         feature_names = [col for col in self.data.columns if col != "target"]
-
         for idx, name in enumerate(feature_names):
             if idx in selected_features_indices:
                 if feature_scores is None:
@@ -359,6 +364,9 @@ class FeatureSelectionPipeline:
         return result_array
 
     def compute_performance(self, features, classifier, train_data, test_data):
+        if "target" not in train_data.columns:
+            raise ValueError("'target' column not found in the data. Please rename your dependant variable to 'target'")
+
         sliced_train_data = train_data[features + ["target"]]
         sliced_test_data = test_data[features + ["target"]]
 

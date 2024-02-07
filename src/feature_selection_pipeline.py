@@ -364,6 +364,9 @@ class FeatureSelectionPipeline:
         return result_array
 
     def compute_performance(self, features, classifier, train_data, test_data):
+        if "target" not in train_data.columns:
+            raise ValueError("'target' column not found in the data. Please rename your dependant variable to 'target'")
+
         sliced_train_data = train_data[features + ["target"]]
         sliced_test_data = test_data[features + ["target"]]
 

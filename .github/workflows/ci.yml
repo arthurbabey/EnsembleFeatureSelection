@@ -21,8 +21,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          Rscript -e 'install.packages("stabm")'  # Install the stabm R package
+          Rscript -e 'install.packages("stabm", lib="R-packages")'  # Install the stabm R package into the "R-packages" directory
 
       - name: Run tests
         run: pytest
-

@@ -8,6 +8,7 @@ results/
 # test notebook
 pipeline_test.ipynb
 Untitled.ipynb
+data_exploration.ipynb
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

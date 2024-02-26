@@ -1,5 +1,5 @@
 # Base image
-FROM python:3.11 AS builder
+FROM python:3.11
 
 # set WD
 WORKDIR /app
@@ -11,13 +11,8 @@ RUN apt-get update && apt-get install -y r-base && Rscript -e "install.packages(
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
-# Stage 2: Production environment
-FROM python:3.11:slim AS production
-
-WORKDIR /app
-
-# Copy all files to the WD
-COPY --from=builder /app .
+# copy all other files
+COPY . .
 
 # run the application
 CMD ["python", "main.py"]

@@ -33,7 +33,7 @@ task:
   description: "ML task, either regression or classification"
 
 data_path:
-  value: "/data/input/Data"
+  value: "/data/input/Data/"
   description: "The path to the data folder."
 
 result_path:

@@ -1,6 +1,7 @@
 import os
 import pickle
 import shutil
+import sys
 
 from src.feature_selection_pipeline import FeatureSelectionPipeline
 from utils import *
@@ -11,10 +12,10 @@ os.sched_setaffinity(0, range(cores_to_use))
 
 
 if __name__ == "__main__":
-    print("HELLO")
     # parse config file
-    config_file = "config.yaml"
-    params = read_config(config_file)
+    mounted_dir = "/app/config.yaml"
+    config_file = os.path.join(mounted_dir, "config.yaml")
+    params = read_config(mounted_dir)
     classifier = params["classifier"]["value"]
     fs_methods = params["fs_methods"]["value"]
     merging_strategy = params["merging_strategy"]["value"]
@@ -24,7 +25,6 @@ if __name__ == "__main__":
     normalize = params["normalize"]["value"]
     task = params["task"]["value"]
     data_path = params["data_path"]["value"]
-    print(data_path)
     result_path = params["result_path"]["value"]
     experiment_name = params["experiment_name"]["value"]
     threshold = None

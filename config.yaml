@@ -33,11 +33,11 @@ task:
   description: "ML task, either regression or classification"
 
 data_path:
-  value: "/mnt/arthurbabey/Data/"
+  value: "/data/input/Data"
   description: "The path to the data folder."
 
 result_path:
-  value: "/home/arthur.babey/data-local/project/lonza/EnsembleFeatureSelection/results"
+  value: "/data/results"
   description: "The path to save the results."
 
 experiment_name:

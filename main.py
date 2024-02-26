@@ -11,6 +11,7 @@ os.sched_setaffinity(0, range(cores_to_use))
 
 
 if __name__ == "__main__":
+    print("HELLO")
     # parse config file
     config_file = "config.yaml"
     params = read_config(config_file)
@@ -23,6 +24,7 @@ if __name__ == "__main__":
     normalize = params["normalize"]["value"]
     task = params["task"]["value"]
     data_path = params["data_path"]["value"]
+    print(data_path)
     result_path = params["result_path"]["value"]
     experiment_name = params["experiment_name"]["value"]
     threshold = None

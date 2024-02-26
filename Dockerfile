@@ -1,20 +1,23 @@
 # Base image
-FROM python:3.11
+FROM python:3.11 AS builder
+
+# set WD
+WORKDIR /app
+
+# install python packages
+COPY requirements.txt
+RUN pip install -r requirements.txt
 
 # install R for rpy2
 RUN apt-get update && apt-get install -y r-base && Rscript -e "install.packages('stabm', repos='https://cloud.r-project.org')"
 
-# set the working directory in the container
+# Stage 2: Production environment
+FROM python:3.11:slim AS production
+
 WORKDIR /app
 
-# Copy the requirement file into the container
-COPY requirements.txt /app
-
-# Install dependencies
-RUN pip install -r requirements.txt
-
 # Copy all files to the WD
-COPY . /app
+COPY --from=builder /app .
 
 # run the application
 CMD ["python", "main.py"]

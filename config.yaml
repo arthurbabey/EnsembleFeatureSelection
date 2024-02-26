@@ -18,7 +18,7 @@ merging_strategy:
   valid_values: ["merging_strategy_union_of_pairwise_intersections", "merging_strategy_kemeny_young"]
 
 num_repeats:
-  value: 1
+  value: 5
   description: "The number of repeats for the pipeline."
   min_value: 2
   max_value: 10

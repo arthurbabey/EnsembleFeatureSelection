@@ -13,9 +13,8 @@ os.sched_setaffinity(0, range(cores_to_use))
 
 if __name__ == "__main__":
     # parse config file
-    mounted_dir = "/app/config.yaml"
-    config_file = os.path.join(mounted_dir, "config.yaml")
-    params = read_config(mounted_dir)
+    config_file = "config.yaml"
+    params = read_config(config_file)
     classifier = params["classifier"]["value"]
     fs_methods = params["fs_methods"]["value"]
     merging_strategy = params["merging_strategy"]["value"]

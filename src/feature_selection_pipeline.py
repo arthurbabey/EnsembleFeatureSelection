@@ -60,12 +60,16 @@ class FeatureSelectionPipeline:
         for fs_method in self.fs_methods:
             method_name = fs_method.__name__.replace("feature_selection_", "")
             X_train, y_train = self._get_X_y(train_data)
-            # threshold = self.threshold if self.threshold is not None else self.data.shape[1]//10
+            threshold = (
+                self.threshold
+                if self.threshold is not None
+                else self.data.shape[1] // 10
+            )
             selected_feature_scores, selected_features_indices = fs_method(
                 X=X_train,
                 y=y_train,
                 task=self.task,
-                num_features_to_select=None,
+                num_features_to_select=threshold,
             )
             self.FS_subsets[(idx, method_name)] = self._compute_features(
                 selected_features_indices, selected_feature_scores
@@ -321,11 +325,16 @@ class FeatureSelectionPipeline:
         """
         if self.task == "classification":
             train_data, test_data = train_test_split(
-                self.data, test_size=test_size, stratify=self.data["target"]
+                self.data,
+                test_size=test_size,
+                random_state=1,
+                stratify=self.data["target"],
             )
             return train_data, test_data
         elif self.task == "regression":
-            train_data, test_data = train_test_split(self.data, test_size=test_size)
+            train_data, test_data = train_test_split(
+                self.data, test_size=test_size, random_state=1
+            )
         else:
             raise ValueError("Unsupported task type")
         return train_data, test_data

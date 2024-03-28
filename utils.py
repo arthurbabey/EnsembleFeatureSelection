@@ -113,7 +113,7 @@ def preprocess_exp1(data_file, metadata_file, normalize, task):
     if normalize:
         non_categorical_cols = merged_df.columns.difference(categorical_cols)
         non_categorical_cols = non_categorical_cols.drop("target", errors="ignore")
-        scaler = MinMaxScaler()
+        scaler = StandardScaler()
         merged_df[non_categorical_cols] = scaler.fit_transform(
             merged_df[non_categorical_cols]
         )

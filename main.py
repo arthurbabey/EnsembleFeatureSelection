@@ -3,6 +3,8 @@ import pickle
 import shutil
 import sys
 
+from sklearn.model_selection import train_test_split
+
 from src.feature_selection_pipeline import FeatureSelectionPipeline
 from utils import *
 
@@ -26,7 +28,7 @@ if __name__ == "__main__":
     data_path = params["data_path"]["value"]
     result_path = params["result_path"]["value"]
     experiment_name = params["experiment_name"]["value"]
-    threshold = None
+    threshold = 500
 
     # create results folders and save config
     experiment_folder = os.path.join(result_path, experiment_name)
@@ -41,8 +43,22 @@ if __name__ == "__main__":
         normalize=normalize,
         task=task,
     )
+
+    # Perform train/test split
+    train_data, test_data = train_test_split(
+        dataset, test_size=0.2, stratify=dataset["target"], random_state=42
+    )
+
+    # Define file paths for saving the datasets
+    train_file_path = os.path.join(experiment_folder, "train_dataset.csv")
+    test_file_path = os.path.join(experiment_folder, "test_dataset.csv")
+
+    # Save train and test datasets as CSV files
+    train_data.to_csv(train_file_path, index=False)
+    test_data.to_csv(test_file_path, index=False)
+
     pipeline = FeatureSelectionPipeline(
-        data=dataset,
+        data=train_data,
         fs_methods=fs_methods,
         merging_strategy=merging_strategy,
         classifier=classifier,
